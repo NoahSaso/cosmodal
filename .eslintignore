@@ -1,3 +1,4 @@
 webpack.config.js
 babel-polyfill.js
 dist/
+example/

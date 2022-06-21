@@ -2,6 +2,7 @@ import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
 import React, {
   FunctionComponent,
+  PropsWithChildren,
   ReactNode,
   useCallback,
   useEffect,
@@ -34,7 +35,7 @@ enum InitState {
 const getKeplrFromWindow = async () =>
   (await import("@keplr-wallet/stores")).getKeplrFromWindow()
 
-export interface WalletManagerProviderProps {
+export type WalletManagerProviderProps = PropsWithChildren<{
   // Wallets available for connection.
   wallets: Wallet[]
   // Class names applied to various components for custom theming.
@@ -73,7 +74,7 @@ export interface WalletManagerProviderProps {
   // Callback that will be attached as a listener to the
   // `keplr_keystorechange` event on the window object.
   onKeplrKeystoreChangeEvent?: (event: Event) => unknown
-}
+}>
 
 export const WalletManagerProvider: FunctionComponent<
   WalletManagerProviderProps

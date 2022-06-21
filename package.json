@@ -1,6 +1,6 @@
 {
   "name": "@noahsaso/cosmodal",
-  "version": "0.4.2",
+  "version": "0.4.6",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NoahSaso/cosmodal.git"
@@ -27,14 +27,14 @@
     "format": "eslint . --fix"
   },
   "dependencies": {
-    "@cosmjs/cosmwasm-stargate": "^0.26.8",
+    "@cosmjs/cosmwasm-stargate": "^0.28.9",
     "@cosmjs/launchpad": "^0.27.1",
-    "@cosmjs/proto-signing": "^0.28.0",
+    "@cosmjs/proto-signing": "^0.28.9",
     "@keplr-wallet/common": "^0.9.10",
     "@keplr-wallet/cosmos": "^0.9.16",
     "@keplr-wallet/provider": "^0.9.12",
-    "@keplr-wallet/stores": "^0.9.18",
-    "@keplr-wallet/types": "^0.9.12",
+    "@keplr-wallet/stores": "^0.10.5",
+    "@keplr-wallet/types": "^0.10.5",
     "@walletconnect/client": "^1.7.8",
     "@walletconnect/types": "^1.7.8",
     "@walletconnect/utils": "^1.7.8",
@@ -80,7 +80,7 @@
     "webpack-cli": "^4.9.2"
   },
   "peerDependencies": {
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

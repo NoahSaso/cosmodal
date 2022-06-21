@@ -2,118 +2,37 @@
 
 A wallet connector with mobile WalletConnect support for the Cosmos ecosystem.
 
+## Example
+
+The example is deployed on Vercel at https://noahsaso-cosmodal.vercel.app.
+
+It can also be run locally using these commands:
+
+```sh
+# Clone the repo.
+git clone https://github.com/NoahSaso/cosmodal
+# Enter the example folder.
+cd cosmodal/example
+
+# Start the Next.js dev server.
+npm install && npm run dev
+# OR
+yarn && yarn dev
+```
+
 ## Setup
 
 1. Install the Cosmodal package in your React project
 
-```
-yarn add @noahsaso/cosmodal
-
-# OR
-
+```sh
 npm install --save @noahsaso/cosmodal
+# OR
+yarn add @noahsaso/cosmodal
 ```
 
-2. Import `WalletManagerProvider` and wrap it around your whole app. Only include it once as an ancestor of all components that need to access the wallet. Likely you'll want this in your root App component.
+2. Import `WalletManagerProvider` and wrap it around your whole app. Only include it once as an ancestor of all components that need to access the wallet. Likely you'll want this in your root App component. Check out the example code to see how to define wallets.
 
 ```tsx
-import { FunctionComponent } from "react"
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
-import { GasPrice } from "@cosmjs/stargate"
-import { getKeplrFromWindow } from "@keplr-wallet/stores"
-import { ChainInfo } from "@keplr-wallet/types"
-import WalletConnect from "@walletconnect/client"
-import {
-  KeplrWalletConnectV1,
-  Wallet,
-  WalletClient,
-  WalletManagerProvider,
-} from "@noahsaso/cosmodal"
-import type { AppProps } from "next/app"
-import Head from "next/head"
-import { EmbedChainInfos } from "../config"
-
-const CHAIN_ID = "juno-1"
-const GAS_PRICE = "0.0025ujuno"
-const CHAIN_RPC_NODE = "https://rpc..."
-const CHAIN_INFO: ChainInfo = "..."
-
-const AvailableWallets: Wallet[] = [
-  {
-    id: "mobile-web",
-    name: "",
-    description: "",
-    imageUrl: "",
-    isWalletConnect: false,
-    // Will not be shown in the picker since `isMobileWeb` is true.
-    isMobileWeb: true,
-    getClient: getKeplrFromWindow,
-    getSigningClient: async (client) => {
-      await client.enable(CHAIN_ID)
-      const signer = await client.getOfflineSignerAuto(CHAIN_ID)
-      return await SigningCosmWasmClient.connectWithSigner(
-        CHAIN_RPC_NODE,
-        signer,
-        { gasPrice: GasPrice.fromString(GAS_PRICE) }
-      )
-    },
-  },
-  {
-    id: "keplr-wallet-extension",
-    name: "Keplr Wallet",
-    description: "Keplr Chrome Extension",
-    imageUrl: "/keplr-wallet-extension.png",
-    isWalletConnect: false,
-    isMobileWeb: false,
-    getClient: getKeplrFromWindow,
-    getSigningClient: async (client) => {
-      await client.experimentalSuggestChain(CHAIN_INFO)
-      await client.enable(CHAIN_ID)
-      const signer = await client.getOfflineSignerAuto(CHAIN_ID)
-      return await SigningCosmWasmClient.connectWithSigner(
-        CHAIN_RPC_NODE,
-        signer,
-        { gasPrice: GasPrice.fromString(GAS_PRICE) }
-      )
-    },
-    onSelect: async () => {
-      const hasKeplr = !!(await getKeplrFromWindow())
-      if (!hasKeplr) {
-        throw new Error("Keplr not installed.")
-      }
-    },
-  },
-  // WalletConnect only supports mainnet. Not testnet.
-  ...(CHAIN_ID === "juno-1"
-    ? [
-        {
-          id: "walletconnect-keplr",
-          name: "WalletConnect",
-          description: "Keplr Mobile",
-          imageUrl: "/walletconnect-keplr.png",
-          isWalletConnect: true,
-          isMobileWeb: false,
-          getClient: async (walletConnect?: WalletConnect) => {
-            if (walletConnect?.connected)
-              return new KeplrWalletConnectV1(walletConnect, [CHAIN_INFO])
-            throw new Error("Mobile wallet not connected.")
-          },
-          getSigningClient: async (client) => {
-            // WalletConnect does not support suggesting chain.
-            await client.enable(CHAIN_ID)
-            // WalletConnect only supports Amino signing.
-            const signer = await client.getOfflineSignerOnlyAmino(CHAIN_ID)
-            return await SigningCosmWasmClient.connectWithSigner(
-              CHAIN_RPC_NODE,
-              signer,
-              { gasPrice: GasPrice.fromString(GAS_PRICE) }
-            )
-          },
-        },
-      ]
-    : []),
-]
-
 const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
   <WalletManagerProvider
     clientMeta={{
@@ -131,65 +50,20 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
 export default MyApp
 ```
 
-3. Manage the wallet by using the `useWalletManager` hook in your components. You can use the hook in as many components as you want since the same objects are always returned (as long as there is only one WalletManagerProvider ancestor).
+3. Manage the wallet by using the `useWalletManager` hook in your pages and components. You can use the hook in as many components as you want since the same objects are always returned (as long as there is only one WalletManagerProvider ancestor).
 
 ```tsx
-import { useWalletManager } from "@noahsaso/cosmodal"
-import type { NextPage } from "next"
-import { useEffect, useState } from "react"
-
-const CW20_CONTRACT_ADDRESS = "..."
-const RECIPIENT_ADDDRESS = "..."
-
 const Home: NextPage = () => {
-  const {
-    connect,
-    disconnect,
-    connectedWallet,
-    signingClient,
-    connectionError,
-  } = useWalletManager()
-
-  const [name, setName] = useState("")
-  const [address, setAddress] = useState("")
-  useEffect(() => {
-    if (!connectedWallet || !signingClient) return
-
-    // Get the name of the connected wallet.
-    connectedWallet.client.getKey(CHAIN_ID).then((key) => {
-      setName(key.name)
-    })
-    // Get the address of the connected wallet.
-    connectedWallet.client.getAccounts().then((accounts) => {
-      setAddress(accounts[0].address)
-
-      // Transfer 10 tokens from the wallet to the recipient address.
-      signingClient
-        .execute(
-          walletAddress,
-          CW20_CONTRACT_ADDRESS,
-          {
-            transfer: {
-              amount: "10",
-              recipient: RECIPIENT_ADDDRESS,
-            },
-          },
-          "auto"
-        )
-        .then((result) => {
-          console.log("Transferred 10 tokens in TX " + result.transactionHash)
-          alert("Transferred 10 tokens")
-        })
-    })
-  }, [connectedWallet])
+  const { connect, disconnect, connectedWallet, connectionError } =
+    useWalletManager()
 
   return connectedWallet ? (
     <div>
       <p>
-        Name: <b>{name}</b>
+        Name: <b>{connectedWallet.name}</b>
       </p>
       <p>
-        Address: <b>{address}</b>
+        Address: <b>{connectedWallet.address}</b>
       </p>
       <button onClick={disconnect}>Disconnect</button>
     </div>
@@ -259,20 +133,22 @@ interface Wallet {
   getClient: (
     walletConnect?: WalletConnect
   ) => WalletClient | Promise<WalletClient | undefined>
-  // A function that returns the OfflineSigner for this wallet.
-  // If undefined, offlineSigner will be undefined.
+  // A function that returns the `OfflineSigner` for this wallet.
+  // If undefined, `offlineSigner` and `address` will be undefined in the
+  // `connectedWallet` object.
   getOfflineSigner?: (
     client: WalletClient
   ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
   // A function that returns the name for this wallet.
-  // If not defined, name will be undefined. If `getOfflineSigner` is
-  // undefined, the `offlineSigner` argument will be undefined,
+  // If undefined, `name` will be undefined in the `connectedWallet`
+  // object. If `getOfflineSigner` is undefined, the `offlineSigner`
+  // argument will be undefined.
   getName?: (
     client: WalletClient,
     offlineSigner?: OfflineSigner
   ) => string | Promise<string | undefined> | undefined
   // A function that returns the SigningCosmWasmClient for this wallet.
-  // If undefined, signingClient will be undefined. If `getOfflineSigner`
+  // If undefined, `signingClient` will be undefined. If `getOfflineSigner`
   // is undefined, the `offlineSigner` argument will be undefined.
   getSigningClient?: (
     client: WalletClient,

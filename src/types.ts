@@ -26,20 +26,22 @@ export interface Wallet {
   getClient: (
     walletConnect?: WalletConnect
   ) => WalletClient | Promise<WalletClient | undefined>
-  // A function that returns the OfflineSigner for this wallet.
-  // If undefined, offlineSigner will be undefined.
+  // A function that returns the `OfflineSigner` for this wallet.
+  // If undefined, `offlineSigner` and `address` will be undefined in the
+  // `connectedWallet` object.
   getOfflineSigner?: (
     client: WalletClient
   ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
   // A function that returns the name for this wallet.
-  // If not defined, name will be undefined. If `getOfflineSigner` is
-  // undefined, the `offlineSigner` argument will be undefined,
+  // If undefined, `name` will be undefined in the `connectedWallet`
+  // object. If `getOfflineSigner` is undefined, the `offlineSigner`
+  // argument will be undefined.
   getName?: (
     client: WalletClient,
     offlineSigner?: OfflineSigner
   ) => string | Promise<string | undefined> | undefined
   // A function that returns the SigningCosmWasmClient for this wallet.
-  // If undefined, signingClient will be undefined. If `getOfflineSigner`
+  // If undefined, `signingClient` will be undefined. If `getOfflineSigner`
   // is undefined, the `offlineSigner` argument will be undefined.
   getSigningClient?: (
     client: WalletClient,
