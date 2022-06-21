@@ -17,8 +17,9 @@ npm install --save @noahsaso/cosmodal
 2. Import `WalletManagerProvider` and wrap it around your whole app. Only include it once as an ancestor of all components that need to access the wallet. Likely you'll want this in your root App component.
 
 ```tsx
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
 import { FunctionComponent } from "react"
+import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
+import { GasPrice } from "@cosmjs/stargate"
 import { getKeplrFromWindow } from "@keplr-wallet/stores"
 import { ChainInfo } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
@@ -78,7 +79,7 @@ const AvailableWallets: Wallet[] = [
     onSelect: async () => {
       const hasKeplr = !!(await getKeplrFromWindow())
       if (!hasKeplr) {
-        throw new KeplrNotInstalledError()
+        throw new Error("Keplr not installed.")
       }
     },
   },
@@ -133,44 +134,53 @@ export default MyApp
 3. Manage the wallet by using the `useWalletManager` hook in your components. You can use the hook in as many components as you want since the same objects are always returned (as long as there is only one WalletManagerProvider ancestor).
 
 ```tsx
-import { Keplr } from "@keplr-wallet/types"
-import {
-  KeplrWalletConnectV1,
-  useWalletManager,
-  WalletClient,
-} from "@noahsaso/cosmodal"
+import { useWalletManager } from "@noahsaso/cosmodal"
 import type { NextPage } from "next"
 import { useEffect, useState } from "react"
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate"
-import { GasPrice } from "@cosmjs/stargate"
 
-const CHAIN_ID = "juno-1"
-const CHAIN_RPC_ENDPOINT = "..."
 const CW20_CONTRACT_ADDRESS = "..."
 const RECIPIENT_ADDDRESS = "..."
 
 const Home: NextPage = () => {
-  const { connect, disconnect, connectedWallet, connectionError } =
-    useWalletManager()
+  const {
+    connect,
+    disconnect,
+    connectedWallet,
+    signingClient,
+    connectionError,
+  } = useWalletManager()
 
   const [name, setName] = useState("")
   const [address, setAddress] = useState("")
   useEffect(() => {
-    if (!connectedWallet) return
-
-    const { client } = connectedWallet
+    if (!connectedWallet || !signingClient) return
 
     // Get the name of the connected wallet.
-    client.getKey(CHAIN_ID).then((key) => {
+    connectedWallet.client.getKey(CHAIN_ID).then((key) => {
       setName(key.name)
     })
     // Get the address of the connected wallet.
-    client.getAccounts().then((accounts) => {
+    connectedWallet.client.getAccounts().then((accounts) => {
       setAddress(accounts[0].address)
-    })
 
-    // Execute a contract to transfer some tokens.
-    transfer(client)
+      // Transfer 10 tokens from the wallet to the recipient address.
+      signingClient
+        .execute(
+          walletAddress,
+          CW20_CONTRACT_ADDRESS,
+          {
+            transfer: {
+              amount: "10",
+              recipient: RECIPIENT_ADDDRESS,
+            },
+          },
+          "auto"
+        )
+        .then((result) => {
+          console.log("Transferred 10 tokens in TX " + result.transactionHash)
+          alert("Transferred 10 tokens")
+        })
+    })
   }, [connectedWallet])
 
   return connectedWallet ? (
@@ -192,41 +202,6 @@ const Home: NextPage = () => {
 }
 
 export default Home
-
-const transfer = async (client: WalletClient) => {
-  const offlineSigner =
-    // WalletConnect only supports the Amino signer.
-    client instanceof KeplrWalletConnectV1
-      ? await client.getOfflineSignerOnlyAmino(CHAIN_ID)
-      : await client.getOfflineSignerAuto(CHAIN_ID)
-
-  // Connect to the chain via an RPC node.
-  const cwClient = await SigningCosmWasmClient.connectWithSigner(
-    CHAIN_RPC_ENDPOINT,
-    offlineSigner,
-    {
-      gasPrice: GasPrice.fromString("0.0025ujuno"),
-    }
-  )
-
-  // Get the address of the connected wallet.
-  const walletAddress = (await client.getAccounts())[0].address
-
-  // Transfer 10 tokens from the wallet to the recipient address.
-  const result = await cwClient.execute(
-    walletAddress,
-    CW20_CONTRACT_ADDRESS,
-    {
-      transfer: {
-        amount: "10",
-        recipient: RECIPIENT_ADDDRESS,
-      },
-    },
-    "auto"
-  )
-
-  alert("Transferred 10 tokens in TX " + result.transactionHash)
-}
 ```
 
 ## API
