@@ -191,12 +191,21 @@ export const WalletManagerProvider: FunctionComponent<
             walletClient.dontOpenAppOnEnable = !!newWcSession
           }
 
-          const signingClient = await wallet.getSigningClient?.(walletClient)
+          const offlineSigner = await wallet.getOfflineSigner?.(walletClient)
+          const name = await wallet.getName?.(walletClient, offlineSigner)
+          const address = (await offlineSigner?.getAccounts())?.[0]?.address
+          const signingClient = await wallet.getSigningClient?.(
+            walletClient,
+            offlineSigner
+          )
 
           // If successfully retrieves signing client, save.
           setConnectedWallet({
             wallet,
             walletClient,
+            name,
+            address,
+            offlineSigner,
             signingClient,
           })
 
@@ -383,7 +392,6 @@ export const WalletManagerProvider: FunctionComponent<
         connect,
         disconnect,
         connectedWallet,
-        signingClient: connectedWallet?.signingClient,
         connectionError,
         isMobileWeb,
       }}

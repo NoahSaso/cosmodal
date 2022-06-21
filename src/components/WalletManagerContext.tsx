@@ -1,4 +1,3 @@
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
 import { createContext, useContext } from "react"
 
 import { ConnectedWallet } from "../types"
@@ -10,10 +9,8 @@ export interface WalletManagerContextInterface {
   connect: () => void
   // Function that disconnects from the connected wallet.
   disconnect: () => Promise<void>
-  // Connected wallet information and client.
+  // Connected wallet info and clients for interacting with the chain.
   connectedWallet?: ConnectedWallet
-  // Signing client for the connected wallet.
-  signingClient?: SigningCosmWasmClient
   // Error encountered during the connection process, likely thrown by a
   // wallet's `getClient` or `getSigningClient`.
   connectionError?: unknown

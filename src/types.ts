@@ -1,4 +1,5 @@
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
+import { OfflineSigner } from "@cosmjs/proto-signing"
 import { Keplr } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 
@@ -24,14 +25,29 @@ export interface Wallet {
   // walletConnect passed if `isWalletConnect` is true.
   getClient: (
     walletConnect?: WalletConnect
-  ) => Promise<WalletClient | undefined>
-  // A function that returns the SigningCosmWasmClient for this wallet.
-  // Note: WalletConnect clients only support Amino signing and do not
-  // support suggesting chain.
-  // If not defined, signingClient will be undefined.
-  getSigningClient?: (
+  ) => WalletClient | Promise<WalletClient | undefined>
+  // A function that returns the OfflineSigner for this wallet.
+  // If undefined, offlineSigner will be undefined.
+  getOfflineSigner?: (
     client: WalletClient
-  ) => Promise<SigningCosmWasmClient | undefined> | undefined
+  ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
+  // A function that returns the name for this wallet.
+  // If not defined, name will be undefined. If `getOfflineSigner` is
+  // undefined, the `offlineSigner` argument will be undefined,
+  getName?: (
+    client: WalletClient,
+    offlineSigner?: OfflineSigner
+  ) => string | Promise<string | undefined> | undefined
+  // A function that returns the SigningCosmWasmClient for this wallet.
+  // If undefined, signingClient will be undefined. If `getOfflineSigner`
+  // is undefined, the `offlineSigner` argument will be undefined.
+  getSigningClient?: (
+    client: WalletClient,
+    offlineSigner?: OfflineSigner
+  ) =>
+    | SigningCosmWasmClient
+    | Promise<SigningCosmWasmClient | undefined>
+    | undefined
   // A function whose response is awaited right after the wallet is
   // picked. If this throws an error, the selection process is
   // interrupted, `connectionError` is set to the thrown error, and all
@@ -42,6 +58,9 @@ export interface Wallet {
 export interface ConnectedWallet {
   wallet: Wallet
   walletClient: WalletClient
+  name?: string
+  address?: string
+  offlineSigner?: OfflineSigner
   signingClient?: SigningCosmWasmClient
 }
 

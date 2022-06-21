@@ -227,14 +227,29 @@ interface Wallet {
   // walletConnect passed if `isWalletConnect` is true.
   getClient: (
     walletConnect?: WalletConnect
-  ) => Promise<WalletClient | undefined>
-  // A function that returns the SigningCosmWasmClient for this wallet.
-  // Note: WalletConnect clients only support Amino signing and do not
-  // support suggesting chain.
-  // If not defined, signingClient will be undefined.
-  getSigningClient?: (
+  ) => WalletClient | Promise<WalletClient | undefined>
+  // A function that returns the OfflineSigner for this wallet.
+  // If undefined, offlineSigner will be undefined.
+  getOfflineSigner?: (
     client: WalletClient
-  ) => Promise<SigningCosmWasmClient | undefined> | undefined
+  ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
+  // A function that returns the name for this wallet.
+  // If not defined, name will be undefined. If `getOfflineSigner` is
+  // undefined, the `offlineSigner` argument will be undefined,
+  getName?: (
+    client: WalletClient,
+    offlineSigner?: OfflineSigner
+  ) => string | Promise<string | undefined> | undefined
+  // A function that returns the SigningCosmWasmClient for this wallet.
+  // If undefined, signingClient will be undefined. If `getOfflineSigner`
+  // is undefined, the `offlineSigner` argument will be undefined.
+  getSigningClient?: (
+    client: WalletClient,
+    offlineSigner?: OfflineSigner
+  ) =>
+    | SigningCosmWasmClient
+    | Promise<SigningCosmWasmClient | undefined>
+    | undefined
   // A function whose response is awaited right after the wallet is
   // picked. If this throws an error, the selection process is
   // interrupted, `connectionError` is set to the thrown error, and all
@@ -353,11 +368,10 @@ This component takes the following properties:
 
 This hook returns the following properties in an object (`WalletManagerContextInterface`):
 
-| Property          | Type                                 | Description                                                                                                                                                                                      |
-| ----------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `connect`         | `() => void`                         | Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet depending on the props passed to WalletManagerProvider. |
-| `disconnect`      | `() => Promise<void>`                | Function that disconnects from the connected wallet.                                                                                                                                             |
-| `connectedWallet` | `ConnectedWallet \| undefined`       | Connected wallet information and client.                                                                                                                                                         |
-| `signingClient`   | `SigningCosmWasmClient \| undefined` | Signing client for the connected wallet.                                                                                                                                                         |
-| `connectionError` | `unknown`                            | Error encountered during the connection process, likely thrown by a wallet's `getClient` or `getSigningClient`.                                                                                  |
-| `isMobileWeb`     | `boolean`                            | If this app is running inside the Keplr Mobile web interface.                                                                                                                                    |
+| Property          | Type                           | Description                                                                                                                                                                                      |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `connect`         | `() => void`                   | Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet depending on the props passed to WalletManagerProvider. |
+| `disconnect`      | `() => Promise<void>`          | Function that disconnects from the connected wallet.                                                                                                                                             |
+| `connectedWallet` | `ConnectedWallet \| undefined` | Connected wallet info and clients for interacting with the chain.                                                                                                                                |
+| `connectionError` | `unknown`                      | Error encountered during the connection process, likely thrown by a wallet's `getClient` or `getSigningClient`.                                                                                  |
+| `isMobileWeb`     | `boolean`                      | If this app is running inside the Keplr Mobile web interface.                                                                                                                                    |
