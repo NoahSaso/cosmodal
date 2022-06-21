@@ -220,7 +220,8 @@ interface Wallet {
   imageUrl: string
   // If this wallet client uses WalletConnect.
   isWalletConnect: boolean
-  // If this wallet should be selected for mobile web.
+  // If this wallet should be selected for mobile web. It will not be
+  // shown in the selector modal. It will autoconnect in mobile web.
   isMobileWeb: boolean
   // A function that returns an instantiated wallet client, with
   // walletConnect passed if `isWalletConnect` is true.
