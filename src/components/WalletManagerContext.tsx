@@ -1,3 +1,4 @@
+import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
 import { createContext, useContext } from "react"
 
 import { ConnectedWallet } from "../types"
@@ -9,6 +10,8 @@ export interface WalletManagerContextInterface {
   disconnect: () => Promise<void>
   // Connected wallet information and client.
   connectedWallet?: ConnectedWallet
+  // Signing client for the connected wallet.
+  signingClient?: SigningCosmWasmClient
   // Error encountered during the connection process. Can be anything since the `enableWallet` function can throw anything.
   connectionError?: unknown
   // If this app is running inside the Keplr Mobile web interface.

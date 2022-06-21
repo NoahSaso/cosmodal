@@ -10,7 +10,12 @@ import React, {
 } from "react"
 
 import { KeplrWalletConnectV1 } from "../connectors"
-import { ModalClassNames, Wallet, WalletClient } from "../types"
+import {
+  ConnectedWallet,
+  ModalClassNames,
+  Wallet,
+  WalletClient,
+} from "../types"
 import {
   BaseModal,
   EnablingWalletModal,
@@ -29,23 +34,9 @@ enum InitState {
 const getKeplrFromWindow = async () =>
   (await import("@keplr-wallet/stores")).getKeplrFromWindow()
 
-const MobileWebWallet: Wallet = {
-  id: "mobile-web",
-  name: "",
-  description: "",
-  imageUrl: "",
-  getClient: getKeplrFromWindow,
-  isWalletConnect: false,
-}
-
 export interface WalletManagerProviderProps {
   // Wallets available for connection.
   wallets: Wallet[]
-  // Function that enables the wallet once one is selected.
-  enableWallet: (
-    wallet: Wallet,
-    walletClient: WalletClient
-  ) => Promise<void> | void
   // Class names applied to various components for custom theming.
   classNames?: ModalClassNames
   // Custom close icon.
@@ -89,7 +80,6 @@ export const WalletManagerProvider: FunctionComponent<
 > = ({
   children,
   wallets,
-  enableWallet,
   classNames,
   closeIcon,
   renderLoader,
@@ -116,10 +106,7 @@ export const WalletManagerProvider: FunctionComponent<
   }, [walletConnectUri, onQrCloseCallback])
 
   // Wallet connection state.
-  const [connectedWallet, setConnectedWallet] = useState<{
-    wallet: Wallet
-    client: WalletClient
-  }>()
+  const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet>()
   const [connectionError, setConnectionError] = useState<unknown>()
   const [walletConnect, setWalletConnect] = useState<WalletConnect>()
   // Once mobile web is checked, we are ready to auto-connect.
@@ -204,10 +191,14 @@ export const WalletManagerProvider: FunctionComponent<
             walletClient.dontOpenAppOnEnable = !!newWcSession
           }
 
-          await enableWallet(wallet, walletClient)
+          const signingClient = await wallet.getSigningClient?.(walletClient)
 
-          // If enable succeeds, save.
-          setConnectedWallet({ wallet, client: walletClient })
+          // If successfully retrieves signing client, save.
+          setConnectedWallet({
+            wallet,
+            walletClient,
+            signingClient,
+          })
 
           // Save localStorage value.
           if (localStorageKey && saveToLocalStorageOnConnect) {
@@ -222,7 +213,6 @@ export const WalletManagerProvider: FunctionComponent<
     },
     [
       cleanupAfterConnection,
-      enableWallet,
       handleConnectionError,
       localStorageKey,
       saveToLocalStorageOnConnect,
@@ -308,16 +298,16 @@ export const WalletManagerProvider: FunctionComponent<
         localStorage.getItem(localStorageKey)) ||
       undefined
 
-    // Mobile web mode takes precedence over automatic wallet.
-    const skipModalWallet = isMobileWeb
-      ? MobileWebWallet
-      : // If only one wallet is available, skip the modal and use it.
+    const skipModalWallet =
+      // Mobile web mode takes precedence over automatic wallet.
+      (isMobileWeb && wallets.find(({ isMobileWeb }) => isMobileWeb)) ||
+      // If only one wallet is available, skip the modal and use it.
       wallets.length === 1
-      ? wallets[0]
-      : // Try to find the wallet to automatically connect to if present.
-      automaticWalletId
-      ? wallets.find(({ id }) => id === automaticWalletId)
-      : undefined
+        ? wallets[0]
+        : // Try to find the wallet to automatically connect to if present.
+        automaticWalletId
+        ? wallets.find(({ id }) => id === automaticWalletId)
+        : undefined
     if (skipModalWallet) {
       selectWallet(skipModalWallet)
       return
@@ -393,6 +383,7 @@ export const WalletManagerProvider: FunctionComponent<
         connect,
         disconnect,
         connectedWallet,
+        signingClient: connectedWallet?.signingClient,
         connectionError,
         isMobileWeb,
       }}
@@ -405,7 +396,9 @@ export const WalletManagerProvider: FunctionComponent<
         isOpen={!resetting && pickerModalOpen}
         onClose={() => setPickerModalOpen(false)}
         selectWallet={selectWallet}
-        wallets={wallets}
+        // Mobile web wallet will be auto chosen when in mobile web. It
+        // cannot be selected.
+        wallets={wallets.filter(({ isMobileWeb }) => !isMobileWeb)}
       />
       <WalletConnectModal
         classNames={classNames}

@@ -27,6 +27,7 @@
     "format": "eslint . --fix"
   },
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.26.8",
     "@cosmjs/launchpad": "^0.27.1",
     "@cosmjs/proto-signing": "^0.28.0",
     "@keplr-wallet/common": "^0.9.10",
