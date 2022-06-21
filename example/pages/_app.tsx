@@ -1,3 +1,5 @@
+import "../styles/globals.css"
+
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
 import { GasPrice } from "@cosmjs/stargate"
 import { Bech32Address } from "@keplr-wallet/cosmos"
@@ -8,9 +10,10 @@ import {
   Wallet,
   WalletManagerProvider,
 } from "@noahsaso/cosmodal"
-import WalletConnect from "@walletconnect/client"
 import type { AppProps } from "next/app"
 import { FunctionComponent } from "react"
+
+const LOCAL_STORAGE_KEY = "connectedWalletId"
 
 const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
   <WalletManagerProvider
@@ -21,6 +24,17 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
       icons: ["https://moonphase.is/image.svg"],
     }}
     wallets={AvailableWallets}
+    renderLoader={() => <p>Loading...</p>}
+    localStorageKey={LOCAL_STORAGE_KEY}
+    saveToLocalStorageOnConnect
+    clearLocalStorageOnDisconnect
+    useLocalStorageForAutoConnect
+    // Auto connect if value is present. Check existence of localStorage
+    // to prevent server rendering issues.
+    attemptAutoConnect={
+      typeof localStorage !== "undefined" &&
+      !!localStorage.getItem(LOCAL_STORAGE_KEY)
+    }
   >
     <Component {...pageProps} />
   </WalletManagerProvider>

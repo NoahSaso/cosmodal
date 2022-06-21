@@ -1,59 +1,102 @@
 import { useWalletManager } from "@noahsaso/cosmodal"
 import type { NextPage } from "next"
-import { useCallback } from "react"
-
-const CW20_CONTRACT_ADDRESS = "..."
-const RECIPIENT_ADDDRESS = "..."
+import { useCallback, useState } from "react"
 
 const Home: NextPage = () => {
   const { connect, disconnect, connectedWallet, connectionError } =
     useWalletManager()
 
-  const transfer = useCallback(async () => {
+  const [contractAddress, setContractAddress] = useState("")
+  const [msg, setMsg] = useState("")
+  const [status, setStatus] = useState("")
+
+  const execute = useCallback(async () => {
     if (!connectedWallet?.address || !connectedWallet?.signingClient) return
 
-    // Transfer 10 tokens from the wallet to the recipient address.
-    connectedWallet.signingClient
-      .execute(
+    setStatus("Loading...")
+
+    try {
+      // Parse message.
+      const msgObject = JSON.parse(msg)
+
+      // Execute message.
+      const result = await connectedWallet.signingClient.execute(
         connectedWallet.address,
-        CW20_CONTRACT_ADDRESS,
-        {
-          transfer: {
-            amount: "10",
-            recipient: RECIPIENT_ADDDRESS,
-          },
-        },
+        contractAddress,
+        msgObject,
         "auto"
       )
-      .then((result) => {
-        console.log("Transferred 10 tokens in TX " + result.transactionHash)
-        alert("Transferred 10 tokens")
-      })
-  }, [connectedWallet])
 
-  return connectedWallet ? (
-    <div>
-      <p>
-        Name: <b>{connectedWallet.name}</b>
-      </p>
-      <p>
-        Address: <b>{connectedWallet.address}</b>
-      </p>
-      <button onClick={transfer}>Transfer</button>
-      <br />
-      <br />
-      <button onClick={disconnect}>Disconnect</button>
-    </div>
-  ) : (
-    <div>
-      <button onClick={connect}>Connect</button>
-      {connectionError ? (
-        <p>
-          {connectionError instanceof Error
-            ? connectionError.message
-            : `${connectionError}`}
-        </p>
-      ) : undefined}
+      console.log(result)
+      setStatus(`Executed. TX: ${result.transactionHash}`)
+    } catch (err) {
+      console.error(err)
+      setStatus(`Error: ${err instanceof Error ? err.message : `${err}`}`)
+    }
+  }, [connectedWallet, contractAddress, msg])
+
+  return (
+    <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
+      <div className="flex flex-col items-stretch gap-2 max-w-[90vw] max-h-[90vh]">
+        {connectedWallet ? (
+          <>
+            <p>
+              Name: <b>{connectedWallet.name}</b>
+            </p>
+            <p>
+              Address: <b>{connectedWallet.address}</b>
+            </p>
+            <button
+              onClick={disconnect}
+              className="px-3 py-2 rounded-md border border-gray bg-gray-200 hover:opacity-70"
+            >
+              Disconnect
+            </button>
+
+            <h1 className="text-lg mt-4">Execute Smart Contract</h1>
+            <input
+              type="text"
+              placeholder="Contract Address"
+              className="px-4 py-2 rounded-md outline"
+              value={contractAddress}
+              onChange={(event) => setContractAddress(event.target.value)}
+            />
+
+            <h2 className="text-lg mt-2">Message</h2>
+            <textarea
+              className="p-4 rounded-md outline font-mono"
+              rows={10}
+              value={msg}
+              onChange={(event) => setMsg(event.target.value)}
+            />
+
+            <button
+              onClick={execute}
+              className="px-3 py-2 rounded-md border border-gray bg-gray-200 hover:opacity-70 mt-4"
+            >
+              Execute
+            </button>
+
+            {status && <pre className="overflow-scroll text-xs mt-2">{status}</pre>}
+          </>
+        ) : (
+          <>
+            <button
+              onClick={connect}
+              className="px-3 py-2 rounded-md border border-gray bg-gray-200 hover:opacity-70"
+            >
+              Connect
+            </button>
+            {connectionError ? (
+              <p>
+                {connectionError instanceof Error
+                  ? connectionError.message
+                  : `${connectionError}`}
+              </p>
+            ) : undefined}
+          </>
+        )}
+      </div>
     </div>
   )
 }
