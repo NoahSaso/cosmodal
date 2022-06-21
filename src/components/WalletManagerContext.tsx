@@ -4,7 +4,9 @@ import { createContext, useContext } from "react"
 import { ConnectedWallet } from "../types"
 
 export interface WalletManagerContextInterface {
-  // Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet when `preselectedWalletId` is set.
+  // Function to begin the connection process. This will either display
+  // the wallet picker modal or immediately attempt to connect to a wallet
+  // when `preselectedWalletId` is set.
   connect: () => void
   // Function that disconnects from the connected wallet.
   disconnect: () => Promise<void>
@@ -12,7 +14,8 @@ export interface WalletManagerContextInterface {
   connectedWallet?: ConnectedWallet
   // Signing client for the connected wallet.
   signingClient?: SigningCosmWasmClient
-  // Error encountered during the connection process. Can be anything since the `enableWallet` function can throw anything.
+  // Error encountered during the connection process, likely thrown by a
+  // wallet's `getClient` or `getSigningClient`.
   connectionError?: unknown
   // If this app is running inside the Keplr Mobile web interface.
   isMobileWeb: boolean
