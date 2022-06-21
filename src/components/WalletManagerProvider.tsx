@@ -50,28 +50,57 @@ export interface WalletManagerProviderProps {
   classNames?: ModalClassNames
   // Custom close icon.
   closeIcon?: ReactNode
-  // When set, the connect function will skip the selection modal and attempt to connect to this wallet immediately.
-  preselectedWalletId?: string | undefined
-  // Descriptive info about the React app which gets displayed when enabling a WalletConnect wallet (e.g. name, image, etc.).
+  // Descriptive info about the webapp which gets displayed when enabling a
+  // WalletConnect wallet (e.g. name, image, etc.).
   walletConnectClientMeta?: IClientMeta
-  // If set to true on initial mount, the connect function will be called as soon as possible. If `preselectedWalletId` is also set and a wallet has previously connected and enabled, this can be used to seamlessly reconnect a past session.
-  attemptAutoConnect?: boolean
-  // A custom loader to display in a few modals, such as when enabling the wallet.
+  // A custom loader to display in the modals, such as enabling the wallet.
   renderLoader?: () => ReactNode
+  // If set to true on mount, the connect function will be called as soon
+  // as possible. If `preselectedWalletId` is also set, or the value for
+  // the `localStorageKey` is set and `useLocalStorageForAutoConnect` is
+  // set to true, `preselectedWalletId` taking precedence over the
+  // localStorage value, the connect function will skip the selection modal
+  // and attempt to connect to this wallet immediately. This can be used
+  // to seamlessly reconnect a past session.
+  attemptAutoConnect?: boolean
+  // When set to a valid wallet ID, the connect function will skip the
+  // selection modal and attempt to connect to this wallet immediately.
+  preselectedWalletId?: string
+  // localStorage key for saving or loading the wallet ID, according to the
+  // other enabled props.
+  localStorageKey?: string
+  // When set to true, `localStorageKey` is defined, and the localStorage
+  // value contains a valid wallet ID, the connect function will skip the
+  // selection modal and attempt to connect to this wallet immediately.
+  useLocalStorageForAutoConnect?: boolean
+  // When set to true and `localStorageKey` is defined, the connected
+  // wallet ID will be stored in the provided localStorage key.
+  saveToLocalStorageOnConnect?: boolean
+  // When set to true and `localStorageKey` is defined, the localStorage
+  // key will be cleared when the wallet is disconnected.
+  clearLocalStorageOnDisconnect?: boolean
+  // Callback that will be attached as a listener to the
+  // `keplr_keystorechange` event on the window object.
+  onKeplrKeystoreChangeEvent?: (event: Event) => unknown
 }
 
 export const WalletManagerProvider: FunctionComponent<
   WalletManagerProviderProps
 > = ({
+  children,
   wallets,
   enableWallet,
-  children,
   classNames,
   closeIcon,
-  preselectedWalletId,
+  renderLoader,
   walletConnectClientMeta,
   attemptAutoConnect,
-  renderLoader,
+  preselectedWalletId,
+  localStorageKey,
+  useLocalStorageForAutoConnect,
+  saveToLocalStorageOnConnect,
+  clearLocalStorageOnDisconnect,
+  onKeplrKeystoreChangeEvent,
 }) => {
   const [pickerModalOpen, setPickerModalOpen] = useState(false)
   // If set, opens QR code modal.
@@ -125,6 +154,14 @@ export const WalletManagerProvider: FunctionComponent<
     setConnectingWallet(undefined)
   }, [])
 
+  const clearConnectedWallet = useCallback(() => {
+    // Remove localStorage value.
+    if (localStorageKey && clearLocalStorageOnDisconnect) {
+      localStorage.removeItem(localStorageKey)
+    }
+    setConnectedWallet(undefined)
+  }, [localStorageKey, clearLocalStorageOnDisconnect, setConnectedWallet])
+
   // Wallet connect disconnect listeners.
   useEffect(() => {
     if (!walletConnect) return
@@ -132,19 +169,19 @@ export const WalletManagerProvider: FunctionComponent<
     // Detect disconnected WC session and clear wallet state.
     walletConnect.on("disconnect", () => {
       console.log("WalletConnect disconnected.")
-      setConnectedWallet(undefined)
+      clearConnectedWallet()
       cleanupAfterConnection()
       setWalletConnect(undefined)
     })
-  }, [cleanupAfterConnection, walletConnect])
+  }, [cleanupAfterConnection, clearConnectedWallet, walletConnect])
 
   const disconnect = useCallback(async () => {
-    setConnectedWallet(undefined)
+    clearConnectedWallet()
     if (walletConnect?.connected) {
       await walletConnect.killSession()
     }
     setWalletConnect(undefined)
-  }, [walletConnect, setConnectedWallet])
+  }, [clearConnectedWallet, walletConnect])
 
   const handleConnectionError = useCallback((error: unknown) => {
     console.error(error)
@@ -168,8 +205,14 @@ export const WalletManagerProvider: FunctionComponent<
           }
 
           await enableWallet(wallet, walletClient)
+
           // If enable succeeds, save.
           setConnectedWallet({ wallet, client: walletClient })
+
+          // Save localStorage value.
+          if (localStorageKey && saveToLocalStorageOnConnect) {
+            localStorage.setItem(localStorageKey, wallet.id)
+          }
         }
       } catch (err) {
         handleConnectionError(err)
@@ -177,7 +220,13 @@ export const WalletManagerProvider: FunctionComponent<
         cleanupAfterConnection(walletClient)
       }
     },
-    [cleanupAfterConnection, enableWallet, handleConnectionError]
+    [
+      cleanupAfterConnection,
+      enableWallet,
+      handleConnectionError,
+      localStorageKey,
+      saveToLocalStorageOnConnect,
+    ]
   )
 
   const selectWallet = useCallback(
@@ -251,14 +300,24 @@ export const WalletManagerProvider: FunctionComponent<
   const connect = useCallback(() => {
     setConnectionError(undefined)
 
+    const automaticWalletId =
+      preselectedWalletId ||
+      // If no `preselectedWalletId`, try to fetch value from localStorage.
+      (localStorageKey &&
+        useLocalStorageForAutoConnect &&
+        localStorage.getItem(localStorageKey)) ||
+      undefined
+
+    // Mobile web mode takes precedence over automatic wallet.
     const skipModalWallet = isMobileWeb
       ? MobileWebWallet
       : // If only one wallet is available, skip the modal and use it.
       wallets.length === 1
       ? wallets[0]
-      : // If provided a preselected wallet ID, use it if a
-        // wallet exists with that ID.
-        wallets.find(({ id }) => id === preselectedWalletId)
+      : // Try to find the wallet to automatically connect to if present.
+      automaticWalletId
+      ? wallets.find(({ id }) => id === automaticWalletId)
+      : undefined
     if (skipModalWallet) {
       selectWallet(skipModalWallet)
       return
@@ -266,7 +325,14 @@ export const WalletManagerProvider: FunctionComponent<
 
     // If no default wallet, open modal to choose one.
     setPickerModalOpen(true)
-  }, [preselectedWalletId, isMobileWeb, wallets, selectWallet])
+  }, [
+    preselectedWalletId,
+    localStorageKey,
+    useLocalStorageForAutoConnect,
+    isMobileWeb,
+    wallets,
+    selectWallet,
+  ])
 
   // Reset connection when it gets stuck somewhere.
   const [resetting, setResetting] = useState(false)
@@ -302,6 +368,24 @@ export const WalletManagerProvider: FunctionComponent<
 
     if (attemptAutoConnect || isMobileWeb) connect()
   }, [attemptAutoConnect, initState, connect, isMobileWeb])
+
+  // Listen for keplr_keystorechange event.
+  useEffect(() => {
+    if (!onKeplrKeystoreChangeEvent) {
+      return
+    }
+
+    // Add event listener.
+    window.addEventListener("keplr_keystorechange", onKeplrKeystoreChangeEvent)
+
+    // Remove event listener on clean up.
+    return () => {
+      window.removeEventListener(
+        "keplr_keystorechange",
+        onKeplrKeystoreChangeEvent
+      )
+    }
+  }, [onKeplrKeystoreChangeEvent])
 
   return (
     <WalletManagerContext.Provider
