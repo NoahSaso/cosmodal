@@ -1,6 +1,12 @@
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
+import {
+  SigningCosmWasmClient,
+  SigningCosmWasmClientOptions,
+} from "@cosmjs/cosmwasm-stargate"
 import { OfflineSigner } from "@cosmjs/proto-signing"
-import { SigningStargateClient } from "@cosmjs/stargate"
+import {
+  SigningStargateClient,
+  SigningStargateClientOptions,
+} from "@cosmjs/stargate"
 import { ChainInfo, Keplr } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 
@@ -70,7 +76,17 @@ export interface IWalletManagerContext {
   // If this app is running inside the Keplr Mobile web interface.
   isEmbeddedKeplrMobileWeb: boolean
   // List of ChainInfo objects of possible chains that can be connected to.
+  // This is passed through from the provider props to allow composition
+  // of your own hooks, and for use in the built-in useWallet hook.
   chainInfoList: ChainInfo[]
+  // Options passed to SigningCosmWasmClient on connection. This is passed
+  // through from the provider props to allow composition of your own
+  // hooks, and for use in the built-in useWallet hook.
+  signingCosmWasmClientOptions?: SigningCosmWasmClientOptions
+  // Options passed to SigningStargateClient on connection. This is passed
+  // through from the provider props to allow composition of your own
+  // hooks, and for use in the built-in useWallet hook.
+  signingStargateClientOptions?: SigningStargateClientOptions
 }
 
 export interface ModalClassNames {

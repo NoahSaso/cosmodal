@@ -30,6 +30,8 @@ export const useWallet = (
     error: _error,
     connectedWallet: _connectedWallet,
     chainInfoList,
+    signingCosmWasmClientOptions,
+    signingStargateClientOptions,
   } = useWalletManager()
 
   const [chainIdStatus, setChainIdStatus] = useState<Status>(
@@ -67,7 +69,9 @@ export const useWallet = (
         await getConnectedWalletInfo(
           wallet,
           _connectedWallet.walletClient,
-          chainInfo
+          chainInfo,
+          signingCosmWasmClientOptions,
+          signingStargateClientOptions
         )
       )
       setChainIdStatus(Status.Connected)
@@ -78,7 +82,14 @@ export const useWallet = (
       setChainIdError(error)
       setChainIdStatus(Status.Errored)
     })
-  }, [_status, _connectedWallet, chainId, chainInfoList])
+  }, [
+    _status,
+    _connectedWallet,
+    chainId,
+    chainInfoList,
+    signingCosmWasmClientOptions,
+    signingStargateClientOptions,
+  ])
 
   const status = chainId ? chainIdStatus : _status
   const error = chainId ? chainIdError : _error

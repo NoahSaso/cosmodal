@@ -1,3 +1,5 @@
+import { SigningCosmWasmClientOptions } from "@cosmjs/cosmwasm-stargate"
+import { SigningStargateClientOptions } from "@cosmjs/stargate"
 import { ChainInfo } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
@@ -62,6 +64,10 @@ export type WalletManagerProviderProps = PropsWithChildren<{
   // Callback that will be attached as a listener to the
   // `keplr_keystorechange` event on the window object.
   onKeplrKeystoreChangeEvent?: (event: Event) => unknown
+  // Options passed to SigningCosmWasmClient on connection.
+  signingCosmWasmClientOptions?: SigningCosmWasmClientOptions
+  // Options passed to SigningStargateClient on connection.
+  signingStargateClientOptions?: SigningStargateClientOptions
 }>
 
 export const WalletManagerProvider: FunctionComponent<
@@ -78,6 +84,8 @@ export const WalletManagerProvider: FunctionComponent<
   preselectedWalletType,
   localStorageKey,
   onKeplrKeystoreChangeEvent,
+  signingCosmWasmClientOptions,
+  signingStargateClientOptions,
 }) => {
   //! STATE
 
@@ -190,7 +198,9 @@ export const WalletManagerProvider: FunctionComponent<
           await getConnectedWalletInfo(
             wallet,
             walletClient,
-            _getDefaultChainInfo()
+            _getDefaultChainInfo(),
+            signingCosmWasmClientOptions,
+            signingStargateClientOptions
           )
         )
 
@@ -267,6 +277,8 @@ export const WalletManagerProvider: FunctionComponent<
     [
       walletConnect,
       _getDefaultChainInfo,
+      signingCosmWasmClientOptions,
+      signingStargateClientOptions,
       localStorageKey,
       walletConnectClientMeta,
       _cleanupAfterConnection,

@@ -1,5 +1,11 @@
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
-import { SigningStargateClient } from "@cosmjs/stargate"
+import {
+  SigningCosmWasmClient,
+  SigningCosmWasmClientOptions,
+} from "@cosmjs/cosmwasm-stargate"
+import {
+  SigningStargateClient,
+  SigningStargateClientOptions,
+} from "@cosmjs/stargate"
 import { ChainInfo } from "@keplr-wallet/types"
 
 import { Wallet, WalletClient, WalletType } from "../types"
@@ -7,7 +13,9 @@ import { Wallet, WalletClient, WalletType } from "../types"
 export const getConnectedWalletInfo = async (
   wallet: Wallet,
   client: WalletClient,
-  chainInfo: ChainInfo
+  chainInfo: ChainInfo,
+  signingCosmWasmClientOptions?: SigningCosmWasmClientOptions,
+  signingStargateClientOptions?: SigningStargateClientOptions
 ) => {
   // Only Keplr browser extension supports suggesting chain.
   // Not WalletConnect nor embedded Keplr Mobile web.
@@ -28,15 +36,13 @@ export const getConnectedWalletInfo = async (
 
   const signingCosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
     chainInfo.rpc,
-    offlineSigner
-    // TODO: Add back in.
-    // {
-    //   gasPrice: GasPrice.fromString(GAS_PRICE),
-    // }
+    offlineSigner,
+    signingCosmWasmClientOptions
   )
   const signingStargateClient = await SigningStargateClient.connectWithSigner(
     chainInfo.rpc,
-    offlineSigner
+    offlineSigner,
+    signingStargateClientOptions
   )
 
   return {
