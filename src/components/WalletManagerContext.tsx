@@ -1,22 +1,6 @@
 import { createContext, useContext } from "react"
 
-import { ConnectedWallet } from "../types"
-
-export interface WalletManagerContextInterface {
-  // Function to begin the connection process. This will either display
-  // the wallet picker modal or immediately attempt to connect to a wallet
-  // when `preselectedWalletId` is set.
-  connect: () => void
-  // Function that disconnects from the connected wallet.
-  disconnect: () => Promise<void>
-  // Connected wallet info and clients for interacting with the chain.
-  connectedWallet?: ConnectedWallet
-  // Error encountered during the connection process, likely thrown by a
-  // wallet's `getClient` or `getSigningClient`.
-  connectionError?: unknown
-  // If this app is running inside the Keplr Mobile web interface.
-  isMobileWeb: boolean
-}
+import { WalletManagerContextInterface } from "../types"
 
 export const WalletManagerContext =
   createContext<WalletManagerContextInterface | null>(null)
@@ -28,4 +12,10 @@ export const useWalletManager = () => {
   }
 
   return context
+}
+
+export const useWallet = () => {
+  const { state, error, connectedWallet } = useWalletManager()
+
+  return { ...connectedWallet, state, error }
 }

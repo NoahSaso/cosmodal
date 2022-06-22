@@ -1245,7 +1245,7 @@
     ws "^6.2.0"
     xstream "^11.14.0"
 
-"@cosmjs/stargate@0.28.9":
+"@cosmjs/stargate@0.28.9", "@cosmjs/stargate@^0.28.9":
   version "0.28.9"
   resolved "https://registry.yarnpkg.com/@cosmjs/stargate/-/stargate-0.28.9.tgz#7422af1796b532c049805bd6a610256f5aa9391f"
   integrity sha512-1Jh/+qsyzM+7+ek/peQa3xumgU99SvAI5ecDZNS6+qOaWgGdGSW8n40sEfv6viRVLDppfoYo6/9QfR5h3PoKgQ==

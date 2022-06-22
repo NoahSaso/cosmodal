@@ -41,7 +41,9 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
       url: "https://cosmodal.example.app",
       icons: ["https://cosmodal.example.app/walletconnect.png"],
     }}
-    wallets={AvailableWallets}
+    chainId={JUNO_TESTNET_CHAIN_INFO.chainId}
+    chainInfoList={[JUNO_TESTNET_CHAIN_INFO]}
+    enabledWallets={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
   >
     <Component {...pageProps} />
   </WalletManagerProvider>
@@ -54,8 +56,7 @@ export default MyApp
 
 ```tsx
 const Home: NextPage = () => {
-  const { connect, disconnect, connectedWallet, connectionError } =
-    useWalletManager()
+  const { connect, disconnect, connectedWallet, error } = useWalletManager()
 
   return connectedWallet ? (
     <div>
@@ -70,7 +71,7 @@ const Home: NextPage = () => {
   ) : (
     <div>
       <button onClick={connect}>Connect</button>
-      {connectionError && <p>{connectionError.message}</p>}
+      {error && <p>{error.message}</p>}
     </div>
   )
 }
@@ -84,86 +85,35 @@ export default Home
 
 This component takes the following properties:
 
-| Property                        | Type                        | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------- | --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wallets`                       | `Wallet[]`                  | &#x2611; | Wallets available for connection.                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `classNames`                    | `ModalClassNames`           |          | Class names applied to various components for custom theming.                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `closeIcon`                     | `ReactNode`                 |          | Custom close icon.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `walletConnectClientMeta`       | `IClientMeta`               |          | Descriptive info about the React app which gets displayed when enabling a WalletConnect wallet (e.g. name, image, etc.).                                                                                                                                                                                                                                                                                                                                      |
-| `renderLoader`                  | `() => ReactNode`           |          | A custom loader to display in a few modals, such as when enabling the wallet.                                                                                                                                                                                                                                                                                                                                                                                 |
-| `attemptAutoConnect`            | `boolean`                   |          | If set to true on mount, the connect function will be called as soon as possible. If `preselectedWalletId` is also set, or the value for the `localStorageKey` is set and `useLocalStorageForAutoConnect` is set to true, `preselectedWalletId` taking precedence over the localStorage value, the connect function will skip the selection modal and attempt to connect to this wallet immediately. This can be used to seamlessly reconnect a past session. |
-| `preselectedWalletId`           | `string`                    |          | When set to a valid wallet ID, the connect function will skip the selection modal and attempt to connect to this wallet immediately.                                                                                                                                                                                                                                                                                                                          |
-| `localStorageKey`               | `string`                    |          | localStorage key for saving or loading the wallet ID, according to the other enabled props.                                                                                                                                                                                                                                                                                                                                                                   |
-| `useLocalStorageForAutoConnect` | `boolean`                   |          | When set to true, `localStorageKey` is defined, and the localStorage value contains a valid wallet ID, the connect function will skip the selection modal and attempt to connect to this wallet immediately.                                                                                                                                                                                                                                                  |
-| `saveToLocalStorageOnConnect`   | `boolean`                   |          | When set to true and `localStorageKey` is defined, the connected wallet ID will be stored in the provided localStorage key.                                                                                                                                                                                                                                                                                                                                   |
-| `clearLocalStorageOnDisconnect` | `boolean`                   |          | When set to true and `localStorageKey` is defined, the localStorage key will be cleared when the wallet is disconnected.                                                                                                                                                                                                                                                                                                                                      |
-| `onKeplrKeystoreChangeEvent`    | `(event: Event) => unknown` |          | Callback that will be attached as a listener to the `keplr_keystorechange` event on the window object.                                                                                                                                                                                                                                                                                                                                                        |
+| Property                     | Type                        | Required | Description                                                                                                                            |
+| ---------------------------- | --------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabledWalletTypes`         | `WalletType[]`              | &#x2611; | Wallet types available for connection.                                                                                                 |
+| `chainInfoList`              | `ChainInfo[]`               | &#x2611; | List of ChainInfo objects of possible chains that can be connected to.                                                                 |
+| `chainId`                    | `string`                    | &#x2611; | Chain ID to connect to. Must be present in one of the objects in `chainInfoList`.                                                      |
+| `classNames`                 | `ModalClassNames`           |          | Class names applied to various components for custom theming.                                                                          |
+| `closeIcon`                  | `ReactNode`                 |          | Custom close icon.                                                                                                                     |
+| `walletConnectClientMeta`    | `IClientMeta`               |          | Descriptive info about the React app which gets displayed when enabling a WalletConnect wallet (e.g. name, image, etc.).               |
+| `renderLoader`               | `() => ReactNode`           |          | A custom loader to display in a few modals, such as when enabling the wallet.                                                          |
+| `preselectedWalletType`      | `WalletType`                |          | When set to a valid wallet type, the connect function will skip the selection modal and attempt to connect to this wallet immediately. |
+| `localStorageKey`            | `string`                    |          | localStorage key for saving, loading, and auto connecting to a wallet.                                                                 |
+| `onKeplrKeystoreChangeEvent` | `(event: Event) => unknown` |          | Callback that will be attached as a listener to the `keplr_keystorechange` event on the window object.                                 |
 
 ### useWalletManager
 
 This hook returns the following properties in an object (`WalletManagerContextInterface`):
 
-| Property          | Type                           | Description                                                                                                                                                                                      |
-| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `connect`         | `() => void`                   | Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet depending on the props passed to WalletManagerProvider. |
-| `disconnect`      | `() => Promise<void>`          | Function that disconnects from the connected wallet.                                                                                                                                             |
-| `connectedWallet` | `ConnectedWallet \| undefined` | Connected wallet info and clients for interacting with the chain.                                                                                                                                |
-| `connectionError` | `unknown`                      | Error encountered during the connection process, likely thrown by a wallet's `getClient` or `getSigningClient`.                                                                                  |
-| `isMobileWeb`     | `boolean`                      | If this app is running inside the Keplr Mobile web interface.                                                                                                                                    |
+| Property                   | Type                           | Description                                                                                                                                                                                      |
+| -------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `connect`                  | `() => void`                   | Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet depending on the props passed to WalletManagerProvider. |
+| `disconnect`               | `() => Promise<void>`          | Function that disconnects from the connected wallet.                                                                                                                                             |
+| `connectedWallet`          | `ConnectedWallet \| undefined` | Connected wallet info and clients for interacting with the chain.                                                                                                                                |
+| `state`                    | `State`                        | State of cosmodal.                                                                                                                                                                               |
+| `error`                    | `unknown`                      | Error encountered during the connection process.                                                                                                                                                 |
+| `isEmbeddedKeplrMobileWeb` | `boolean`                      | If this app is running inside the Keplr Mobile web interface.                                                                                                                                    |
 
 ### Relevant types
 
 ```tsx
-interface Wallet {
-  // A unique identifier among all wallets.
-  id: string
-  // The name of the wallet.
-  name: string
-  // A description of the wallet.
-  description: string
-  // The URL of the wallet logo.
-  imageUrl: string
-  // If this wallet client uses WalletConnect.
-  isWalletConnect: boolean
-  // If this wallet should be selected for mobile web. It will not be
-  // shown in the selector modal. It will autoconnect in mobile web.
-  isMobileWeb: boolean
-  // A function that returns an instantiated wallet client, with
-  // walletConnect passed if `isWalletConnect` is true.
-  getClient: (
-    walletConnect?: WalletConnect
-  ) => WalletClient | Promise<WalletClient | undefined>
-  // A function that returns the `OfflineSigner` for this wallet.
-  // If undefined, `offlineSigner` and `address` will be undefined in the
-  // `connectedWallet` object.
-  getOfflineSigner?: (
-    client: WalletClient
-  ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
-  // A function that returns the name for this wallet.
-  // If undefined, `name` will be undefined in the `connectedWallet`
-  // object. If `getOfflineSigner` is undefined, the `offlineSigner`
-  // argument will be undefined.
-  getName?: (
-    client: WalletClient,
-    offlineSigner?: OfflineSigner
-  ) => string | Promise<string | undefined> | undefined
-  // A function that returns the SigningCosmWasmClient for this wallet.
-  // If undefined, `signingClient` will be undefined. If `getOfflineSigner`
-  // is undefined, the `offlineSigner` argument will be undefined.
-  getSigningClient?: (
-    client: WalletClient,
-    offlineSigner?: OfflineSigner
-  ) =>
-    | SigningCosmWasmClient
-    | Promise<SigningCosmWasmClient | undefined>
-    | undefined
-  // A function whose response is awaited right after the wallet is
-  // picked. If this throws an error, the selection process is
-  // interrupted, `connectionError` is set to the thrown error, and all
-  // modals are closed.
-  onSelect?: () => Promise<void>
-}
-
 interface ModalClassNames {
   modalContent?: string
   modalOverlay?: string
@@ -186,33 +136,48 @@ interface IClientMeta {
   name: string
 }
 
+type WalletClient = Keplr | KeplrWalletConnectV1
+
+enum WalletType {
+  Keplr = "keplr",
+  WalletConnectKeplr = "wallet_connect_keplr",
+}
+
 interface ConnectedWallet {
-  wallet: Wallet
+  walletType: WalletType
   walletClient: WalletClient
-  signingClient: SigningCosmWasmClient
+  chainInfo: ChainInfo
+  offlineSigner: OfflineSigner
+  name: string
+  address: string
+  signingCosmWasmClient: SigningCosmWasmClient
+  signingStargateClient: SigningStargateClient
 }
 
 interface WalletManagerContextInterface {
   // Function to begin the connection process. This will either display
   // the wallet picker modal or immediately attempt to connect to a wallet
-  // when `preselectedWalletId` is set.
+  // when `preselectedWalletType` is set.
   connect: () => void
   // Function that disconnects from the connected wallet.
   disconnect: () => Promise<void>
-  // Connected wallet information and client.
+  // Connected wallet info and clients for interacting with the chain.
   connectedWallet?: ConnectedWallet
-  // Signing client for the connected wallet.
-  signingClient?: SigningCosmWasmClient
-  // Error encountered during the connection process, likely thrown by a
-  // wallet's `getClient` or `getSigningClient`.
-  connectionError?: unknown
+  // State of cosmodal.
+  state: State
+  // Error encountered during the connection process.
+  error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
-  isMobileWeb: boolean
+  isEmbeddedKeplrMobileWeb: boolean
 }
 
 interface WalletManagerProviderProps {
-  // Wallets available for connection.
-  wallets: Wallet[]
+  // Wallet types available for connection.
+  enabledWalletTypes: WalletType[]
+  // List of ChainInfo objects of possible chains that can be connected to.
+  chainInfoList: ChainInfo[]
+  // Chain ID to connect to. Must be present in `chainInfoList`
+  chainId: ChainInfo["chainId"]
   // Class names applied to various components for custom theming.
   classNames?: ModalClassNames
   // Custom close icon.
@@ -222,30 +187,11 @@ interface WalletManagerProviderProps {
   walletConnectClientMeta?: IClientMeta
   // A custom loader to display in the modals, such as enabling the wallet.
   renderLoader?: () => ReactNode
-  // If set to true on mount, the connect function will be called as soon
-  // as possible. If `preselectedWalletId` is also set, or the value for
-  // the `localStorageKey` is set and `useLocalStorageForAutoConnect` is
-  // set to true, `preselectedWalletId` taking precedence over the
-  // localStorage value, the connect function will skip the selection modal
-  // and attempt to connect to this wallet immediately. This can be used
-  // to seamlessly reconnect a past session.
-  attemptAutoConnect?: boolean
-  // When set to a valid wallet ID, the connect function will skip the
+  // When set to a valid wallet type, the connect function will skip the
   // selection modal and attempt to connect to this wallet immediately.
-  preselectedWalletId?: string
-  // localStorage key for saving or loading the wallet ID, according to the
-  // other enabled props.
+  preselectedWalletType?: WalletType
+  // localStorage key for saving, loading, and auto connecting to a wallet.
   localStorageKey?: string
-  // When set to true, `localStorageKey` is defined, and the localStorage
-  // value contains a valid wallet ID, the connect function will skip the
-  // selection modal and attempt to connect to this wallet immediately.
-  useLocalStorageForAutoConnect?: boolean
-  // When set to true and `localStorageKey` is defined, the connected
-  // wallet ID will be stored in the provided localStorage key.
-  saveToLocalStorageOnConnect?: boolean
-  // When set to true and `localStorageKey` is defined, the localStorage
-  // key will be cleared when the wallet is disconnected.
-  clearLocalStorageOnDisconnect?: boolean
   // Callback that will be attached as a listener to the
   // `keplr_keystorechange` event on the window object.
   onKeplrKeystoreChangeEvent?: (event: Event) => unknown

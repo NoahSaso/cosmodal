@@ -1,69 +1,66 @@
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
 import { OfflineSigner } from "@cosmjs/proto-signing"
-import { Keplr } from "@keplr-wallet/types"
+import { SigningStargateClient } from "@cosmjs/stargate"
+import { ChainInfo, Keplr } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 
 import { KeplrWalletConnectV1 } from "./connectors"
 
 export type WalletClient = Keplr | KeplrWalletConnectV1
 
+export enum WalletType {
+  Keplr = "keplr",
+  WalletConnectKeplr = "wallet_connect_keplr",
+}
+
 export interface Wallet {
   // A unique identifier among all wallets.
-  id: string
+  type: WalletType
   // The name of the wallet.
   name: string
   // A description of the wallet.
   description: string
   // The URL of the wallet logo.
   imageUrl: string
-  // If this wallet client uses WalletConnect.
-  isWalletConnect: boolean
-  // If this wallet should be selected for mobile web. It will not be
-  // shown in the selector modal. It will autoconnect in mobile web.
-  isMobileWeb: boolean
   // A function that returns an instantiated wallet client, with
-  // walletConnect passed if `isWalletConnect` is true.
+  // `walletConnect` passed if `type === WalletType.WalletConnectKeplr`.
   getClient: (
+    chainInfo: ChainInfo,
     walletConnect?: WalletConnect
-  ) => WalletClient | Promise<WalletClient | undefined>
-  // A function that returns the `OfflineSigner` for this wallet.
-  // If undefined, `offlineSigner` and `address` will be undefined in the
-  // `connectedWallet` object.
-  getOfflineSigner?: (
+  ) => Promise<WalletClient | undefined>
+  // A function that returns the function to retrieve the `OfflineSigner`
+  // for this wallet.
+  getOfflineSignerFunction: (
     client: WalletClient
-  ) => OfflineSigner | Promise<OfflineSigner | undefined> | undefined
-  // A function that returns the name for this wallet.
-  // If undefined, `name` will be undefined in the `connectedWallet`
-  // object. If `getOfflineSigner` is undefined, the `offlineSigner`
-  // argument will be undefined.
-  getName?: (
-    client: WalletClient,
-    offlineSigner?: OfflineSigner
-  ) => string | Promise<string | undefined> | undefined
-  // A function that returns the SigningCosmWasmClient for this wallet.
-  // If undefined, `signingClient` will be undefined. If `getOfflineSigner`
-  // is undefined, the `offlineSigner` argument will be undefined.
-  getSigningClient?: (
-    client: WalletClient,
-    offlineSigner?: OfflineSigner
-  ) =>
-    | SigningCosmWasmClient
-    | Promise<SigningCosmWasmClient | undefined>
-    | undefined
-  // A function whose response is awaited right after the wallet is
-  // picked. If this throws an error, the selection process is
-  // interrupted, `connectionError` is set to the thrown error, and all
-  // modals are closed.
-  onSelect?: () => Promise<void>
+  ) => (chainId: string) => OfflineSigner | Promise<OfflineSigner>
 }
 
 export interface ConnectedWallet {
-  wallet: Wallet
+  walletType: WalletType
   walletClient: WalletClient
-  name?: string
-  address?: string
-  offlineSigner?: OfflineSigner
-  signingClient?: SigningCosmWasmClient
+  chainInfo: ChainInfo
+  offlineSigner: OfflineSigner
+  name: string
+  address: string
+  signingCosmWasmClient: SigningCosmWasmClient
+  signingStargateClient: SigningStargateClient
+}
+
+export interface WalletManagerContextInterface {
+  // Function to begin the connection process. This will either display
+  // the wallet picker modal or immediately attempt to connect to a wallet
+  // depending on the props passed to WalletManagerProvider.
+  connect: () => void
+  // Function that disconnects from the connected wallet.
+  disconnect: () => Promise<void>
+  // Connected wallet info and clients for interacting with the chain.
+  connectedWallet?: ConnectedWallet
+  // State of cosmodal.
+  state: State
+  // Error encountered during the connection process.
+  error?: unknown
+  // If this app is running inside the Keplr Mobile web interface.
+  isEmbeddedKeplrMobileWeb: boolean
 }
 
 export interface ModalClassNames {
@@ -79,4 +76,15 @@ export interface ModalClassNames {
   walletName?: string
   walletDescription?: string
   textContent?: string
+}
+
+export enum State {
+  Initializing,
+  AttemptingAutoConnection,
+  // Don't call connect until this state is reached.
+  ReadyForConnection,
+  Connecting,
+  Connected,
+  Resetting,
+  Errored,
 }

@@ -19,7 +19,7 @@ export const SelectWalletModal: FunctionComponent<SelectWalletModalProps> = ({
     <WalletList className={classNames?.walletList}>
       {wallets.map((wallet) => (
         <Wallet
-          key={wallet.id}
+          key={wallet.type}
           className={classNames?.wallet}
           onClick={(e) => {
             e.preventDefault()
