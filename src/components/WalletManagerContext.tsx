@@ -15,7 +15,7 @@ export const useWalletManager = () => {
 }
 
 export const useWallet = () => {
-  const { state, error, connectedWallet } = useWalletManager()
+  const { status, error, connectedWallet } = useWalletManager()
 
-  return { ...connectedWallet, state, error }
+  return { ...connectedWallet, status, error }
 }

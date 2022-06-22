@@ -18,7 +18,7 @@ import { KeplrWalletConnectV1 } from "../connectors"
 import {
   ConnectedWallet,
   ModalClassNames,
-  State,
+  Status,
   Wallet,
   WalletClient,
   WalletType,
@@ -35,6 +35,7 @@ import { WalletManagerContext } from "./WalletManagerContext"
 const getKeplrFromWindow = async () =>
   (await import("@keplr-wallet/stores")).getKeplrFromWindow()
 
+// TODO: Move imageUrl, and maybe name/description, to user configuration somehow.
 const keplrWallet: Wallet = {
   type: WalletType.Keplr,
   name: "Keplr Wallet",
@@ -63,9 +64,10 @@ export type WalletManagerProviderProps = PropsWithChildren<{
   enabledWalletTypes: WalletType[]
   // List of ChainInfo objects of possible chains that can be connected to.
   chainInfoList: ChainInfo[]
-  // Chain ID to connect to. Must be present in one of the objects in
+  // Chain ID to initially connect to and selected by default if nothing
+  // is passed to the hook. Must be present in one of the objects in
   // `chainInfoList`.
-  chainId: ChainInfo["chainId"]
+  defaultChainId: ChainInfo["chainId"]
   // Class names applied to various components for custom theming.
   classNames?: ModalClassNames
   // Custom close icon.
@@ -91,7 +93,7 @@ export const WalletManagerProvider: FunctionComponent<
   children,
   enabledWalletTypes,
   chainInfoList,
-  chainId,
+  defaultChainId,
   classNames,
   closeIcon,
   renderLoader,
@@ -125,7 +127,7 @@ export const WalletManagerProvider: FunctionComponent<
   const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet>()
   const [error, setError] = useState<unknown>()
   // Once mobile web is checked, we are ready to auto-connect.
-  const [state, setState] = useState<State>(State.Initializing)
+  const [status, setStatus] = useState<Status>(Status.Initializing)
   // In case WalletConnect fails to load, we need to be able to retry.
   // This is done through clicking reset on the WalletConnectModal.
   const [connectingWallet, setConnectingWallet] = useState<Wallet>()
@@ -138,17 +140,19 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Retrieve chain info for initial wallet connection, throwing error if
   // not found.
-  const _getConnectionChainInfo = useCallback(() => {
-    const chainInfo = chainInfoList.find((info) => info.chainId === chainId)
+  const _getDefaultChainInfo = useCallback(() => {
+    const chainInfo = chainInfoList.find(
+      (info) => info.chainId === defaultChainId
+    )
     if (!chainInfo) {
       throw new Error(
-        `Chain ID "${chainId}" does not exist among provided ChainInfo objects. Available Chain IDs: ${chainInfoList
+        `Chain ID "${defaultChainId}" does not exist among provided ChainInfo objects. Available Chain IDs: ${chainInfoList
           .map(({ chainId }) => chainId)
           .join(",")}`
       )
     }
     return chainInfo
-  }, [chainInfoList, chainId])
+  }, [chainInfoList, defaultChainId])
 
   // Closes modals and clears connection state.
   const _cleanupAfterConnection = useCallback((walletClient?: WalletClient) => {
@@ -169,7 +173,7 @@ export const WalletManagerProvider: FunctionComponent<
     async (dontKillWalletConnect?: boolean) => {
       // Disconnect wallet.
       setConnectedWallet(undefined)
-      setState(State.ReadyForConnection)
+      setStatus(Status.ReadyForConnection)
       // Remove localStorage value.
       if (localStorageKey) {
         localStorage.removeItem(localStorageKey)
@@ -186,7 +190,7 @@ export const WalletManagerProvider: FunctionComponent<
 
   const _getConnectedWalletData = useCallback(
     async (wallet: Wallet, client: WalletClient) => {
-      const chainInfo = _getConnectionChainInfo()
+      const chainInfo = _getDefaultChainInfo()
 
       // Only Keplr browser extension supports suggesting chain.
       // Not WalletConnect nor embedded Keplr Mobile web.
@@ -231,13 +235,13 @@ export const WalletManagerProvider: FunctionComponent<
         signingStargateClient,
       }
     },
-    [_getConnectionChainInfo]
+    [_getDefaultChainInfo]
   )
 
   // Obtain WalletConnect if necessary, and connect to the wallet.
   const _connectToWallet = useCallback(
     async (wallet: Wallet) => {
-      setState(State.Connecting)
+      setStatus(Status.Connecting)
       setError(undefined)
       setConnectingWallet(wallet)
       setPickerModalOpen(false)
@@ -251,7 +255,7 @@ export const WalletManagerProvider: FunctionComponent<
         setWalletEnableModalOpen(true)
 
         walletClient = await wallet.getClient(
-          _getConnectionChainInfo(),
+          _getDefaultChainInfo(),
           _walletConnect
         )
         if (!walletClient) {
@@ -271,7 +275,7 @@ export const WalletManagerProvider: FunctionComponent<
           localStorage.setItem(localStorageKey, wallet.type)
         }
 
-        setState(State.Connected)
+        setStatus(Status.Connected)
       }
 
       try {
@@ -331,14 +335,14 @@ export const WalletManagerProvider: FunctionComponent<
       } catch (err) {
         console.error(err)
         setError(err)
-        setState(State.Errored)
+        setStatus(Status.Errored)
       } finally {
         _cleanupAfterConnection(walletClient)
       }
     },
     [
       walletConnect,
-      _getConnectionChainInfo,
+      _getDefaultChainInfo,
       _getConnectedWalletData,
       localStorageKey,
       walletConnectClientMeta,
@@ -356,11 +360,11 @@ export const WalletManagerProvider: FunctionComponent<
     // `State.AttemptingAutoConnection`, though ideally `connect` is only
     // called once `state` reaches `State.ReadyForConnection`.
     // TODO: Add some docs about this.
-    if (state === State.Initializing) {
+    if (status === Status.Initializing) {
       throw new Error("Cannot connect while initializing.")
     }
 
-    setState(State.Connecting)
+    setStatus(Status.Connecting)
     setError(undefined)
 
     const automaticWalletType =
@@ -389,7 +393,7 @@ export const WalletManagerProvider: FunctionComponent<
     // If no default wallet, open modal to choose one.
     setPickerModalOpen(true)
   }, [
-    state,
+    status,
     preselectedWalletType,
     localStorageKey,
     isEmbeddedKeplrMobileWeb,
@@ -402,7 +406,7 @@ export const WalletManagerProvider: FunctionComponent<
     await disconnect().catch(console.error)
     // Set after disconnect, since disconnect sets state to
     // ReadyForConnection.
-    setState(State.Resetting)
+    setStatus(Status.Resetting)
     // Try resetting all wallet state and reconnecting.
     if (connectingWallet) {
       setConnectToWalletUponReset(connectingWallet)
@@ -417,7 +421,7 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Detect if in embedded Keplr Mobile browser, and set ready after.
   useEffect(() => {
-    if (state !== State.Initializing) return
+    if (status !== Status.Initializing) return
 
     getKeplrFromWindow()
       .then(
@@ -426,13 +430,13 @@ export const WalletManagerProvider: FunctionComponent<
           keplr.mode === "mobile-web" &&
           setIsEmbeddedKeplrMobileWeb(true)
       )
-      .finally(() => setState(State.AttemptingAutoConnection))
-  }, [state])
+      .finally(() => setStatus(Status.AttemptingAutoConnection))
+  }, [status])
 
   // Auto connect on mount handler, after the above mobile web check.
   useEffect(() => {
-    if (state !== State.AttemptingAutoConnection) return
-    setState(State.ReadyForConnection)
+    if (status !== Status.AttemptingAutoConnection) return
+    setStatus(Status.ReadyForConnection)
 
     if (
       // If inside Keplr mobile web, auto connect.
@@ -442,7 +446,7 @@ export const WalletManagerProvider: FunctionComponent<
     ) {
       beginConnection()
     }
-  }, [state, beginConnection, isEmbeddedKeplrMobileWeb, localStorageKey])
+  }, [status, beginConnection, isEmbeddedKeplrMobileWeb, localStorageKey])
 
   // Execute onQrCloseCallback if WalletConnect URI is cleared, since it
   // has now been closed.
@@ -457,7 +461,7 @@ export const WalletManagerProvider: FunctionComponent<
   // wallet to select after resetting.
   useEffect(() => {
     if (
-      state === State.Resetting &&
+      status === Status.Resetting &&
       !connectingWallet &&
       connectToWalletUponReset
     ) {
@@ -465,7 +469,7 @@ export const WalletManagerProvider: FunctionComponent<
       // Updates state to Connecting.
       _connectToWallet(connectToWalletUponReset)
     }
-  }, [connectingWallet, state, _connectToWallet, connectToWalletUponReset])
+  }, [connectingWallet, status, _connectToWallet, connectToWalletUponReset])
 
   // WalletConnect disconnect listener.
   useEffect(() => {
@@ -503,7 +507,7 @@ export const WalletManagerProvider: FunctionComponent<
         connect: beginConnection,
         disconnect,
         connectedWallet,
-        state,
+        status,
         error,
         isEmbeddedKeplrMobileWeb,
       }}
@@ -513,7 +517,7 @@ export const WalletManagerProvider: FunctionComponent<
       <SelectWalletModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={state !== State.Resetting && pickerModalOpen}
+        isOpen={status !== Status.Resetting && pickerModalOpen}
         onClose={() => setPickerModalOpen(false)}
         selectWallet={_connectToWallet}
         wallets={Wallets}
@@ -521,7 +525,7 @@ export const WalletManagerProvider: FunctionComponent<
       <WalletConnectModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={state !== State.Resetting && !!walletConnectUri}
+        isOpen={status !== Status.Resetting && !!walletConnectUri}
         onClose={() => disconnect().finally(_cleanupAfterConnection)}
         reset={_reset}
         uri={walletConnectUri}
@@ -529,14 +533,14 @@ export const WalletManagerProvider: FunctionComponent<
       <EnablingWalletModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={state !== State.Resetting && walletEnableModalOpen}
+        isOpen={status !== Status.Resetting && walletEnableModalOpen}
         onClose={() => setWalletEnableModalOpen(false)}
         renderLoader={renderLoader}
         reset={_reset}
       />
       <BaseModal
         classNames={classNames}
-        isOpen={state === State.Resetting}
+        isOpen={status === Status.Resetting}
         maxWidth="24rem"
         title="Resetting..."
       >

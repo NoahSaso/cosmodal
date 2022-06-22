@@ -10,7 +10,7 @@ export type WalletClient = Keplr | KeplrWalletConnectV1
 
 export enum WalletType {
   Keplr = "keplr",
-  WalletConnectKeplr = "wallet_connect_keplr",
+  WalletConnectKeplr = "walletconnect_keplr",
 }
 
 export interface Wallet {
@@ -55,8 +55,8 @@ export interface WalletManagerContextInterface {
   disconnect: () => Promise<void>
   // Connected wallet info and clients for interacting with the chain.
   connectedWallet?: ConnectedWallet
-  // State of cosmodal.
-  state: State
+  // Status of cosmodal.
+  status: Status
   // Error encountered during the connection process.
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
@@ -78,7 +78,7 @@ export interface ModalClassNames {
   textContent?: string
 }
 
-export enum State {
+export enum Status {
   Initializing,
   AttemptingAutoConnection,
   // Don't call connect until this state is reached.
