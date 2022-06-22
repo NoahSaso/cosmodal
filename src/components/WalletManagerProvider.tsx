@@ -1,5 +1,3 @@
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
-import { SigningStargateClient } from "@cosmjs/stargate"
 import { ChainInfo } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
@@ -24,40 +22,19 @@ import {
   WalletType,
 } from "../types"
 import {
+  getChainInfo,
+  getConnectedWalletInfo,
+  getKeplrFromWindow,
+  KeplrWallet,
+  Wallets,
+} from "../utils"
+import {
   BaseModal,
   EnablingWalletModal,
   SelectWalletModal,
   WalletConnectModal,
 } from "./ui"
 import { WalletManagerContext } from "./WalletManagerContext"
-
-// Causes SSR issues if importing this package directly... idk why
-const getKeplrFromWindow = async () =>
-  (await import("@keplr-wallet/stores")).getKeplrFromWindow()
-
-// TODO: Move imageUrl, and maybe name/description, to user configuration somehow.
-const keplrWallet: Wallet = {
-  type: WalletType.Keplr,
-  name: "Keplr Wallet",
-  description: "Keplr Chrome Extension",
-  imageUrl: "/keplr-wallet-extension.png",
-  getClient: getKeplrFromWindow,
-  getOfflineSignerFunction: (client) => client.getOfflineSignerAuto,
-}
-const walletConnectKeplrWallet: Wallet = {
-  type: WalletType.WalletConnectKeplr,
-  name: "Keplr Wallet",
-  description: "Keplr Chrome Extension",
-  imageUrl: "/keplr-wallet-extension.png",
-  getClient: async (chainInfo, walletConnect) => {
-    if (walletConnect?.connected)
-      return new KeplrWalletConnectV1(walletConnect, [chainInfo])
-    throw new Error("Mobile wallet not connected.")
-  },
-  // WalletConnect only supports Amino signing.
-  getOfflineSignerFunction: (client) => client.getOfflineSignerOnlyAmino,
-}
-const Wallets: Wallet[] = [keplrWallet, walletConnectKeplrWallet]
 
 export type WalletManagerProviderProps = PropsWithChildren<{
   // Wallet types available for connection.
@@ -140,19 +117,10 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Retrieve chain info for initial wallet connection, throwing error if
   // not found.
-  const _getDefaultChainInfo = useCallback(() => {
-    const chainInfo = chainInfoList.find(
-      (info) => info.chainId === defaultChainId
-    )
-    if (!chainInfo) {
-      throw new Error(
-        `Chain ID "${defaultChainId}" does not exist among provided ChainInfo objects. Available Chain IDs: ${chainInfoList
-          .map(({ chainId }) => chainId)
-          .join(",")}`
-      )
-    }
-    return chainInfo
-  }, [chainInfoList, defaultChainId])
+  const _getDefaultChainInfo = useCallback(
+    () => getChainInfo(chainInfoList, defaultChainId),
+    [chainInfoList, defaultChainId]
+  )
 
   // Closes modals and clears connection state.
   const _cleanupAfterConnection = useCallback((walletClient?: WalletClient) => {
@@ -188,56 +156,6 @@ export const WalletManagerProvider: FunctionComponent<
     [localStorageKey, walletConnect]
   )
 
-  const _getConnectedWalletData = useCallback(
-    async (wallet: Wallet, client: WalletClient) => {
-      const chainInfo = _getDefaultChainInfo()
-
-      // Only Keplr browser extension supports suggesting chain.
-      // Not WalletConnect nor embedded Keplr Mobile web.
-      if (wallet.type === WalletType.Keplr && client.mode !== "mobile-web") {
-        await client.experimentalSuggestChain(chainInfo)
-      }
-
-      await client.enable(chainInfo.chainId)
-      const offlineSigner = await wallet.getOfflineSignerFunction(client)(
-        chainInfo.chainId
-      )
-
-      const name = (await client.getKey(chainInfo.chainId))?.name ?? ""
-      const address = (await offlineSigner.getAccounts())[0]?.address
-      if (address === undefined) {
-        throw new Error("Failed to retrieve wallet address.")
-      }
-
-      const signingCosmWasmClient =
-        await SigningCosmWasmClient.connectWithSigner(
-          chainInfo.rpc,
-          offlineSigner
-          // TODO: Add back in.
-          // {
-          //   gasPrice: GasPrice.fromString(GAS_PRICE),
-          // }
-        )
-      const signingStargateClient =
-        await SigningStargateClient.connectWithSigner(
-          chainInfo.rpc,
-          offlineSigner
-        )
-
-      return {
-        walletType: wallet.type,
-        walletClient: client,
-        chainInfo,
-        offlineSigner,
-        name,
-        address,
-        signingCosmWasmClient,
-        signingStargateClient,
-      }
-    },
-    [_getDefaultChainInfo]
-  )
-
   // Obtain WalletConnect if necessary, and connect to the wallet.
   const _connectToWallet = useCallback(
     async (wallet: Wallet) => {
@@ -268,7 +186,13 @@ export const WalletManagerProvider: FunctionComponent<
         }
 
         // Save connected wallet data.
-        setConnectedWallet(await _getConnectedWalletData(wallet, walletClient))
+        setConnectedWallet(
+          await getConnectedWalletInfo(
+            wallet,
+            walletClient,
+            _getDefaultChainInfo()
+          )
+        )
 
         // Save localStorage value.
         if (localStorageKey) {
@@ -343,7 +267,6 @@ export const WalletManagerProvider: FunctionComponent<
     [
       walletConnect,
       _getDefaultChainInfo,
-      _getConnectedWalletData,
       localStorageKey,
       walletConnectClientMeta,
       _cleanupAfterConnection,
@@ -376,7 +299,7 @@ export const WalletManagerProvider: FunctionComponent<
     const skipModalWallet =
       // Mobile web mode takes precedence over automatic wallet.
       isEmbeddedKeplrMobileWeb
-        ? keplrWallet
+        ? KeplrWallet
         : // If only one wallet is available, skip the modal and use it.
         enabledWallets.length === 1
         ? enabledWallets[0]
@@ -510,6 +433,7 @@ export const WalletManagerProvider: FunctionComponent<
         status,
         error,
         isEmbeddedKeplrMobileWeb,
+        chainInfoList,
       }}
     >
       {children}

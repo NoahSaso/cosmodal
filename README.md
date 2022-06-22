@@ -100,7 +100,7 @@ This component takes the following properties:
 
 ### useWalletManager
 
-This hook returns the following properties in an object (`WalletManagerContextInterface`):
+This hook returns the following fields (`IWalletManagerContext`):
 
 | Property                   | Type                           | Description                                                                                                                                                                                      |
 | -------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -110,6 +110,24 @@ This hook returns the following properties in an object (`WalletManagerContextIn
 | `status`                   | `Status`                       | Status of cosmodal.                                                                                                                                                                              |
 | `error`                    | `unknown`                      | Error encountered during the connection process.                                                                                                                                                 |
 | `isEmbeddedKeplrMobileWeb` | `boolean`                      | If this app is running inside the Keplr Mobile web interface.                                                                                                                                    |
+| `chainInfoList`            | `ChainInfo[]`                  | List of ChainInfo objects of possible chains that can be connected to.                                                                                                                           |
+
+### useWallet
+
+This hooks returns the following fields (`ConnectedWallet` with `status` and `error` added):
+
+| Property                | Type                                 | Description                                              |
+| ----------------------- | ------------------------------------ | -------------------------------------------------------- |
+| `status`                | `Status`                             | Status of connection.                                    |
+| `error`                 | `unknown`                            | Error encountered during the connection process.         |
+| `walletType`            | `WalletType \| undefined`            | Type of wallet.                                          |
+| `walletClient`          | `WalletClient \| undefined`          | Wallet client.                                           |
+| `chainInfo`             | `ChainInfo \| undefined`             | Chain info the clients are connected to.                 |
+| `offlineSigner`         | `OfflineSigner \| undefined`         | Offline signer for the wallet client.                    |
+| `name`                  | `string \| undefined`                | User's name for their wallet.                            |
+| `address`               | `string \| undefined`                | Wallet address.                                          |
+| `signingCosmWasmClient` | `SigningCosmWasmClient \| undefined` | Signing client for interacting with CosmWasm chain APIs. |
+| `signingStargateClient` | `SigningStargateClient \| undefined` | Signing client for interacting with Stargate chain APIs. |
 
 ### Relevant types
 
@@ -144,13 +162,21 @@ enum WalletType {
 }
 
 interface ConnectedWallet {
+  // Type of wallet.
   walletType: WalletType
+  // Wallet client.
   walletClient: WalletClient
+  // Chain info the clients are connected to.
   chainInfo: ChainInfo
+  // Offline signer for the wallet client.
   offlineSigner: OfflineSigner
+  // Name of wallet.
   name: string
+  // Wallet address.
   address: string
+  // Signing client for interacting with CosmWasm chain APIs.
   signingCosmWasmClient: SigningCosmWasmClient
+  // Signing client for interacting with Stargate chain APIs.
   signingStargateClient: SigningStargateClient
 }
 
@@ -165,7 +191,7 @@ enum Status {
   Errored,
 }
 
-interface WalletManagerContextInterface {
+interface IWalletManagerContext {
   // Function to begin the connection process. This will either display
   // the wallet picker modal or immediately attempt to connect to a wallet
   // when `preselectedWalletType` is set.
@@ -180,6 +206,8 @@ interface WalletManagerContextInterface {
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
   isEmbeddedKeplrMobileWeb: boolean
+  // List of ChainInfo objects of possible chains that can be connected to.
+  chainInfoList?: ChainInfo
 }
 
 interface WalletManagerProviderProps {

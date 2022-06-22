@@ -36,17 +36,25 @@ export interface Wallet {
 }
 
 export interface ConnectedWallet {
+  // Type of wallet.
   walletType: WalletType
+  // Wallet client.
   walletClient: WalletClient
+  // Chain info the clients are connected to.
   chainInfo: ChainInfo
+  // Offline signer for the wallet client.
   offlineSigner: OfflineSigner
+  // User's name for their wallet.
   name: string
+  // Wallet address.
   address: string
+  // Signing client for interacting with CosmWasm chain APIs.
   signingCosmWasmClient: SigningCosmWasmClient
+  // Signing client for interacting with Stargate chain APIs.
   signingStargateClient: SigningStargateClient
 }
 
-export interface WalletManagerContextInterface {
+export interface IWalletManagerContext {
   // Function to begin the connection process. This will either display
   // the wallet picker modal or immediately attempt to connect to a wallet
   // depending on the props passed to WalletManagerProvider.
@@ -61,6 +69,8 @@ export interface WalletManagerContextInterface {
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
   isEmbeddedKeplrMobileWeb: boolean
+  // List of ChainInfo objects of possible chains that can be connected to.
+  chainInfoList: ChainInfo[]
 }
 
 export interface ModalClassNames {
@@ -88,3 +98,6 @@ export enum Status {
   Resetting,
   Errored,
 }
+
+export type UseWalletResponse = Partial<ConnectedWallet> &
+  Pick<IWalletManagerContext, "status" | "error">
