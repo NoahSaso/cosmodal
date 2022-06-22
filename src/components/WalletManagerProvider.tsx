@@ -18,6 +18,7 @@ import { KeplrWalletConnectV1 } from "../connectors"
 import {
   ConnectedWallet,
   ModalClassNames,
+  SigningClientGetter,
   Status,
   Wallet,
   WalletClient,
@@ -64,10 +65,10 @@ export type WalletManagerProviderProps = PropsWithChildren<{
   // Callback that will be attached as a listener to the
   // `keplr_keystorechange` event on the window object.
   onKeplrKeystoreChangeEvent?: (event: Event) => unknown
-  // Options passed to SigningCosmWasmClient on connection.
-  signingCosmWasmClientOptions?: SigningCosmWasmClientOptions
-  // Options passed to SigningStargateClient on connection.
-  signingStargateClientOptions?: SigningStargateClientOptions
+  // Getter for options passed to SigningCosmWasmClient on connection.
+  getSigningCosmWasmClientOptions?: SigningClientGetter<SigningCosmWasmClientOptions>
+  // Getter for options passed to SigningStargateClient on connection.
+  getSigningStargateClientOptions?: SigningClientGetter<SigningStargateClientOptions>
 }>
 
 export const WalletManagerProvider: FunctionComponent<
@@ -84,8 +85,8 @@ export const WalletManagerProvider: FunctionComponent<
   preselectedWalletType,
   localStorageKey,
   onKeplrKeystoreChangeEvent,
-  signingCosmWasmClientOptions,
-  signingStargateClientOptions,
+  getSigningCosmWasmClientOptions,
+  getSigningStargateClientOptions,
 }) => {
   //! STATE
 
@@ -194,13 +195,14 @@ export const WalletManagerProvider: FunctionComponent<
         }
 
         // Save connected wallet data.
+        const chainInfo = _getDefaultChainInfo()
         setConnectedWallet(
           await getConnectedWalletInfo(
             wallet,
             walletClient,
-            _getDefaultChainInfo(),
-            signingCosmWasmClientOptions,
-            signingStargateClientOptions
+            chainInfo,
+            await getSigningCosmWasmClientOptions?.(chainInfo),
+            await getSigningStargateClientOptions?.(chainInfo)
           )
         )
 
@@ -277,8 +279,8 @@ export const WalletManagerProvider: FunctionComponent<
     [
       walletConnect,
       _getDefaultChainInfo,
-      signingCosmWasmClientOptions,
-      signingStargateClientOptions,
+      getSigningCosmWasmClientOptions,
+      getSigningStargateClientOptions,
       localStorageKey,
       walletConnectClientMeta,
       _cleanupAfterConnection,
@@ -446,6 +448,8 @@ export const WalletManagerProvider: FunctionComponent<
         error,
         isEmbeddedKeplrMobileWeb,
         chainInfoList,
+        getSigningCosmWasmClientOptions,
+        getSigningStargateClientOptions,
       }}
     >
       {children}

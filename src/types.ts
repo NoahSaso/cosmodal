@@ -60,6 +60,10 @@ export interface ConnectedWallet {
   signingStargateClient: SigningStargateClient
 }
 
+export type SigningClientGetter<T> = (
+  chainInfo: ChainInfo
+) => T | Promise<T | undefined> | undefined
+
 export interface IWalletManagerContext {
   // Function to begin the connection process. This will either display
   // the wallet picker modal or immediately attempt to connect to a wallet
@@ -79,14 +83,14 @@ export interface IWalletManagerContext {
   // This is passed through from the provider props to allow composition
   // of your own hooks, and for use in the built-in useWallet hook.
   chainInfoList: ChainInfo[]
-  // Options passed to SigningCosmWasmClient on connection. This is passed
-  // through from the provider props to allow composition of your own
-  // hooks, and for use in the built-in useWallet hook.
-  signingCosmWasmClientOptions?: SigningCosmWasmClientOptions
-  // Options passed to SigningStargateClient on connection. This is passed
-  // through from the provider props to allow composition of your own
-  // hooks, and for use in the built-in useWallet hook.
-  signingStargateClientOptions?: SigningStargateClientOptions
+  // Getter for options passed to SigningCosmWasmClient on connection.
+  // This is passed through from the provider props to allow composition
+  // of your own hooks, and for use in the built-in useWallet hook.
+  getSigningCosmWasmClientOptions?: SigningClientGetter<SigningCosmWasmClientOptions>
+  // Getter for options passed to SigningStargateClient on connection.
+  // This is passed through from the provider props to allow composition
+  // of your own hooks, and for use in the built-in useWallet hook.
+  getSigningStargateClientOptions?: SigningClientGetter<SigningStargateClientOptions>
 }
 
 export interface ModalClassNames {
