@@ -109,7 +109,7 @@ This hook returns the following fields (`IWalletManagerContext`):
 | `connect`                         | `() => void`                                                     | Function to begin the connection process. This will either display the wallet picker modal or immediately attempt to connect to a wallet depending on the props passed to WalletManagerProvider.          |
 | `disconnect`                      | `() => Promise<void>`                                            | Function that disconnects from the connected wallet.                                                                                                                                                      |
 | `connectedWallet`                 | `ConnectedWallet \| undefined`                                   | Connected wallet info and clients for interacting with the chain.                                                                                                                                         |
-| `status`                          | `Status`                                                         | Status of cosmodal.                                                                                                                                                                                       |
+| `status`                          | `WalletConnectionStatus`                                         | Status of cosmodal.                                                                                                                                                                                       |
 | `error`                           | `unknown`                                                        | Error encountered during the connection process.                                                                                                                                                          |
 | `isEmbeddedKeplrMobileWeb`        | `boolean`                                                        | If this app is running inside the Keplr Mobile web interface.                                                                                                                                             |
 | `chainInfoList`                   | `ChainInfo[]`                                                    | List of ChainInfo objects of possible chains that can be connected to. This is passed through from the provider props to allow composition of your own hooks, and for use in the built-in useWallet hook. |
@@ -122,7 +122,7 @@ This hooks returns the following fields (`ConnectedWallet` with `status` and `er
 
 | Property                | Type                                 | Description                                              |
 | ----------------------- | ------------------------------------ | -------------------------------------------------------- |
-| `status`                | `Status`                             | Status of connection.                                    |
+| `status`                | `WalletConnectionStatus`             | Status of connection.                                    |
 | `error`                 | `unknown`                            | Error encountered during the connection process.         |
 | `walletType`            | `WalletType \| undefined`            | Type of wallet.                                          |
 | `walletClient`          | `WalletClient \| undefined`          | Wallet client.                                           |
@@ -188,7 +188,7 @@ interface ConnectedWallet {
   signingStargateClient: SigningStargateClient
 }
 
-enum Status {
+enum WalletConnectionStatus {
   Initializing,
   AttemptingAutoConnection,
   // Don't call connect until this state is reached.
@@ -209,7 +209,7 @@ interface IWalletManagerContext {
   // Connected wallet info and clients for interacting with the chain.
   connectedWallet?: ConnectedWallet
   // Status of cosmodal.
-  status: Status
+  status: WalletConnectionStatus
   // Error encountered during the connection process.
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.

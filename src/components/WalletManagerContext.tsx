@@ -4,8 +4,8 @@ import { createContext, useContext, useEffect, useState } from "react"
 import {
   ConnectedWallet,
   IWalletManagerContext,
-  Status,
   UseWalletResponse,
+  WalletConnectionStatus,
 } from "../types"
 import { getChainInfo, getConnectedWalletInfo, Wallets } from "../utils"
 
@@ -34,24 +34,28 @@ export const useWallet = (
     getSigningStargateClientOptions,
   } = useWalletManager()
 
-  const [chainIdStatus, setChainIdStatus] = useState<Status>(
-    Status.Initializing
+  const [chainIdStatus, setChainIdStatus] = useState<WalletConnectionStatus>(
+    WalletConnectionStatus.Initializing
   )
   const [chainIdError, setChainIdError] = useState<unknown>()
   const [chainIdConnectedWallet, setChainIdConnectedWallet] =
     useState<ConnectedWallet>()
   useEffect(() => {
-    if (_status !== Status.Connected || !_connectedWallet || !chainId) {
+    if (
+      _status !== WalletConnectionStatus.Connected ||
+      !_connectedWallet ||
+      !chainId
+    ) {
       // If the initial wallet client is not yet connected, this chainId
       // cannot be connected to yet and is thus still initializing.
-      setChainIdStatus(Status.Initializing)
+      setChainIdStatus(WalletConnectionStatus.Initializing)
       setChainIdConnectedWallet(undefined)
       setChainIdError(undefined)
       return
     }
 
     const connect = async () => {
-      setChainIdStatus(Status.Connecting)
+      setChainIdStatus(WalletConnectionStatus.Connecting)
       setChainIdError(undefined)
 
       const chainInfo = getChainInfo(chainInfoList, chainId)
@@ -74,13 +78,13 @@ export const useWallet = (
           await getSigningStargateClientOptions?.(chainInfo)
         )
       )
-      setChainIdStatus(Status.Connected)
+      setChainIdStatus(WalletConnectionStatus.Connected)
     }
 
     connect().catch((error) => {
       console.error(error)
       setChainIdError(error)
-      setChainIdStatus(Status.Errored)
+      setChainIdStatus(WalletConnectionStatus.Errored)
     })
   }, [
     _status,

@@ -19,9 +19,9 @@ import {
   ConnectedWallet,
   ModalClassNames,
   SigningClientGetter,
-  Status,
   Wallet,
   WalletClient,
+  WalletConnectionStatus,
   WalletType,
 } from "../types"
 import {
@@ -113,7 +113,9 @@ export const WalletManagerProvider: FunctionComponent<
   const [connectedWallet, setConnectedWallet] = useState<ConnectedWallet>()
   const [error, setError] = useState<unknown>()
   // Once mobile web is checked, we are ready to auto-connect.
-  const [status, setStatus] = useState<Status>(Status.Initializing)
+  const [status, setStatus] = useState<WalletConnectionStatus>(
+    WalletConnectionStatus.Initializing
+  )
   // In case WalletConnect fails to load, we need to be able to retry.
   // This is done through clicking reset on the WalletConnectModal.
   const [connectingWallet, setConnectingWallet] = useState<Wallet>()
@@ -150,7 +152,7 @@ export const WalletManagerProvider: FunctionComponent<
     async (dontKillWalletConnect?: boolean) => {
       // Disconnect wallet.
       setConnectedWallet(undefined)
-      setStatus(Status.ReadyForConnection)
+      setStatus(WalletConnectionStatus.ReadyForConnection)
       // Remove localStorage value.
       if (localStorageKey) {
         localStorage.removeItem(localStorageKey)
@@ -168,7 +170,7 @@ export const WalletManagerProvider: FunctionComponent<
   // Obtain WalletConnect if necessary, and connect to the wallet.
   const _connectToWallet = useCallback(
     async (wallet: Wallet) => {
-      setStatus(Status.Connecting)
+      setStatus(WalletConnectionStatus.Connecting)
       setError(undefined)
       setConnectingWallet(wallet)
       setPickerModalOpen(false)
@@ -211,7 +213,7 @@ export const WalletManagerProvider: FunctionComponent<
           localStorage.setItem(localStorageKey, wallet.type)
         }
 
-        setStatus(Status.Connected)
+        setStatus(WalletConnectionStatus.Connected)
       }
 
       try {
@@ -271,7 +273,7 @@ export const WalletManagerProvider: FunctionComponent<
       } catch (err) {
         console.error(err)
         setError(err)
-        setStatus(Status.Errored)
+        setStatus(WalletConnectionStatus.Errored)
       } finally {
         _cleanupAfterConnection(walletClient)
       }
@@ -297,11 +299,11 @@ export const WalletManagerProvider: FunctionComponent<
     // `State.AttemptingAutoConnection`, though ideally `connect` is only
     // called once `state` reaches `State.ReadyForConnection`.
     // TODO: Add some docs about this.
-    if (status === Status.Initializing) {
+    if (status === WalletConnectionStatus.Initializing) {
       throw new Error("Cannot connect while initializing.")
     }
 
-    setStatus(Status.Connecting)
+    setStatus(WalletConnectionStatus.Connecting)
     setError(undefined)
 
     const automaticWalletType =
@@ -343,7 +345,7 @@ export const WalletManagerProvider: FunctionComponent<
     await disconnect().catch(console.error)
     // Set after disconnect, since disconnect sets state to
     // ReadyForConnection.
-    setStatus(Status.Resetting)
+    setStatus(WalletConnectionStatus.Resetting)
     // Try resetting all wallet state and reconnecting.
     if (connectingWallet) {
       setConnectToWalletUponReset(connectingWallet)
@@ -358,7 +360,7 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Detect if in embedded Keplr Mobile browser, and set ready after.
   useEffect(() => {
-    if (status !== Status.Initializing) return
+    if (status !== WalletConnectionStatus.Initializing) return
 
     getKeplrFromWindow()
       .then(
@@ -367,13 +369,13 @@ export const WalletManagerProvider: FunctionComponent<
           keplr.mode === "mobile-web" &&
           setIsEmbeddedKeplrMobileWeb(true)
       )
-      .finally(() => setStatus(Status.AttemptingAutoConnection))
+      .finally(() => setStatus(WalletConnectionStatus.AttemptingAutoConnection))
   }, [status])
 
   // Auto connect on mount handler, after the above mobile web check.
   useEffect(() => {
-    if (status !== Status.AttemptingAutoConnection) return
-    setStatus(Status.ReadyForConnection)
+    if (status !== WalletConnectionStatus.AttemptingAutoConnection) return
+    setStatus(WalletConnectionStatus.ReadyForConnection)
 
     if (
       // If inside Keplr mobile web, auto connect.
@@ -398,7 +400,7 @@ export const WalletManagerProvider: FunctionComponent<
   // wallet to select after resetting.
   useEffect(() => {
     if (
-      status === Status.Resetting &&
+      status === WalletConnectionStatus.Resetting &&
       !connectingWallet &&
       connectToWalletUponReset
     ) {
@@ -457,7 +459,7 @@ export const WalletManagerProvider: FunctionComponent<
       <SelectWalletModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={status !== Status.Resetting && pickerModalOpen}
+        isOpen={status !== WalletConnectionStatus.Resetting && pickerModalOpen}
         onClose={() => setPickerModalOpen(false)}
         selectWallet={_connectToWallet}
         wallets={Wallets}
@@ -465,7 +467,9 @@ export const WalletManagerProvider: FunctionComponent<
       <WalletConnectModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={status !== Status.Resetting && !!walletConnectUri}
+        isOpen={
+          status !== WalletConnectionStatus.Resetting && !!walletConnectUri
+        }
         onClose={() => disconnect().finally(_cleanupAfterConnection)}
         reset={_reset}
         uri={walletConnectUri}
@@ -473,14 +477,16 @@ export const WalletManagerProvider: FunctionComponent<
       <EnablingWalletModal
         classNames={classNames}
         closeIcon={closeIcon}
-        isOpen={status !== Status.Resetting && walletEnableModalOpen}
+        isOpen={
+          status !== WalletConnectionStatus.Resetting && walletEnableModalOpen
+        }
         onClose={() => setWalletEnableModalOpen(false)}
         renderLoader={renderLoader}
         reset={_reset}
       />
       <BaseModal
         classNames={classNames}
-        isOpen={status === Status.Resetting}
+        isOpen={status === WalletConnectionStatus.Resetting}
         maxWidth="24rem"
         title="Resetting..."
       >

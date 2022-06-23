@@ -74,7 +74,7 @@ export interface IWalletManagerContext {
   // Connected wallet info and clients for interacting with the chain.
   connectedWallet?: ConnectedWallet
   // Status of cosmodal.
-  status: Status
+  status: WalletConnectionStatus
   // Error encountered during the connection process.
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
@@ -108,7 +108,7 @@ export interface ModalClassNames {
   textContent?: string
 }
 
-export enum Status {
+export enum WalletConnectionStatus {
   Initializing,
   AttemptingAutoConnection,
   // Don't call connect until this state is reached.
