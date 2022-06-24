@@ -26,9 +26,9 @@ export const useWallet = (
   chainId?: ChainInfo["chainId"]
 ): UseWalletResponse => {
   const {
-    status: _status,
-    error: _error,
-    connectedWallet: _connectedWallet,
+    status: managerStatus,
+    error: managerError,
+    connectedWallet: managerConnectedWallet,
     chainInfoList,
     getSigningCosmWasmClientOptions,
     getSigningStargateClientOptions,
@@ -42,8 +42,8 @@ export const useWallet = (
     useState<ConnectedWallet>()
   useEffect(() => {
     if (
-      _status !== WalletConnectionStatus.Connected ||
-      !_connectedWallet ||
+      managerStatus !== WalletConnectionStatus.Connected ||
+      !managerConnectedWallet ||
       !chainId
     ) {
       // If the initial wallet client is not yet connected, this chainId
@@ -61,7 +61,7 @@ export const useWallet = (
       const chainInfo = getChainInfo(chainInfoList, chainId)
 
       const wallet = Wallets.find(
-        ({ type }) => _connectedWallet.walletType === type
+        ({ type }) => managerConnectedWallet.walletType === type
       )
       // Smoke test, should never happen.
       if (!wallet) {
@@ -72,7 +72,7 @@ export const useWallet = (
         // TODO: Cache
         await getConnectedWalletInfo(
           wallet,
-          _connectedWallet.walletClient,
+          managerConnectedWallet.walletClient,
           chainInfo,
           await getSigningCosmWasmClientOptions?.(chainInfo),
           await getSigningStargateClientOptions?.(chainInfo)
@@ -87,17 +87,19 @@ export const useWallet = (
       setChainIdStatus(WalletConnectionStatus.Errored)
     })
   }, [
-    _status,
-    _connectedWallet,
+    managerStatus,
+    managerConnectedWallet,
     chainId,
     chainInfoList,
     getSigningCosmWasmClientOptions,
     getSigningStargateClientOptions,
   ])
 
-  const status = chainId ? chainIdStatus : _status
-  const error = chainId ? chainIdError : _error
-  const connectedWallet = chainId ? chainIdConnectedWallet : _connectedWallet
+  const status = chainId ? chainIdStatus : managerStatus
+  const error = chainId ? chainIdError : managerError
+  const connectedWallet = chainId
+    ? chainIdConnectedWallet
+    : managerConnectedWallet
 
   return { status, error, ...connectedWallet }
 }

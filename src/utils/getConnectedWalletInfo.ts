@@ -24,26 +24,35 @@ export const getConnectedWalletInfo = async (
   }
 
   await client.enable(chainInfo.chainId)
-  const offlineSigner = await wallet.getOfflineSignerFunction(client)(
-    chainInfo.chainId
-  )
 
-  const name = (await client.getKey(chainInfo.chainId))?.name ?? ""
-  const address = (await offlineSigner.getAccounts())[0]?.address
+  // Parallelize for efficiency.
+
+  const [{ name }, offlineSigner] = await Promise.all([
+    client.getKey(chainInfo.chainId),
+    wallet.getOfflineSignerFunction(client)(chainInfo.chainId),
+  ])
+
+  const [address, signingCosmWasmClient, signingStargateClient] =
+    await Promise.all([
+      // Get address.
+      offlineSigner.getAccounts().then((accounts) => accounts[0]?.address),
+      // Get CosmWasm client.
+      await SigningCosmWasmClient.connectWithSigner(
+        chainInfo.rpc,
+        offlineSigner,
+        signingCosmWasmClientOptions
+      ),
+      // Get Stargate client.
+      await SigningStargateClient.connectWithSigner(
+        chainInfo.rpc,
+        offlineSigner,
+        signingStargateClientOptions
+      ),
+    ])
+
   if (address === undefined) {
     throw new Error("Failed to retrieve wallet address.")
   }
-
-  const signingCosmWasmClient = await SigningCosmWasmClient.connectWithSigner(
-    chainInfo.rpc,
-    offlineSigner,
-    signingCosmWasmClientOptions
-  )
-  const signingStargateClient = await SigningStargateClient.connectWithSigner(
-    chainInfo.rpc,
-    offlineSigner,
-    signingStargateClientOptions
-  )
 
   return {
     walletType: wallet.type,

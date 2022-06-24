@@ -3,7 +3,7 @@ import { getKeplrFromWindow } from "@keplr-wallet/stores"
 import { KeplrWalletConnectV1 } from "../connectors"
 import { Wallet, WalletType } from "../types"
 
-// TODO: Move imageUrl, and maybe name/description, to user configuration somehow.
+// TODO: Move imageUrl, and maybe name/description, to user configuration somehow, or incorporate in planned configurable UI overhaul.
 
 export const KeplrWallet: Wallet = {
   type: WalletType.Keplr,
