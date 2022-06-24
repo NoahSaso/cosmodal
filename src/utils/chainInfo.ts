@@ -117,7 +117,7 @@ export function createKeplrChainInfos(
   }
 }
 
-export const chainInfos: ChainInfo[] = (
+export const ChainInfoList: ChainInfo[] = (
   [
     {
       rpc: "https://rpc-osmosis.keplr.app/", // test: "http://rpc-test.osmosis.zone/"
@@ -1457,12 +1457,12 @@ export const getChainInfo = async (
     ? [
         // Don't include built-in ChainInfo objects if an override with a
         // matching chain ID exists.
-        ...chainInfos.filter(({ chainId }) =>
+        ...ChainInfoList.filter(({ chainId }) =>
           overrides.some((override) => override.chainId === chainId)
         ),
         ...overrides,
       ]
-    : chainInfos
+    : ChainInfoList
 
   const chainInfo = availableChainIds.find((info) => info.chainId === chainId)
   if (!chainInfo) {
