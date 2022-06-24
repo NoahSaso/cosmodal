@@ -11,21 +11,26 @@ export const KeplrWallet: Wallet = {
   description: "Keplr Chrome Extension",
   imageUrl: "/keplr-wallet-extension.png",
   getClient: getKeplrFromWindow,
-  getOfflineSignerFunction: (client) => client.getOfflineSignerAuto,
+  getOfflineSignerFunction: (client) =>
+    // This function expects to be bound to the `client` instance.
+    client.getOfflineSignerAuto.bind(client),
 }
 
 export const WalletConnectKeplrWallet: Wallet = {
   type: WalletType.WalletConnectKeplr,
-  name: "Keplr Wallet",
-  description: "Keplr Chrome Extension",
-  imageUrl: "/keplr-wallet-extension.png",
+  name: "WalletConnect",
+  description: "Keplr Mobile",
+  imageUrl: "/walletconnect-keplr.png",
   getClient: async (chainInfo, walletConnect) => {
-    if (walletConnect?.connected)
+    if (walletConnect?.connected) {
       return new KeplrWalletConnectV1(walletConnect, [chainInfo])
+    }
     throw new Error("Mobile wallet not connected.")
   },
   // WalletConnect only supports Amino signing.
-  getOfflineSignerFunction: (client) => client.getOfflineSignerOnlyAmino,
+  getOfflineSignerFunction: (client) =>
+    // This function expects to be bound to the `client` instance.
+    client.getOfflineSignerOnlyAmino.bind(client),
 }
 
 export const Wallets: Wallet[] = [KeplrWallet, WalletConnectKeplrWallet]

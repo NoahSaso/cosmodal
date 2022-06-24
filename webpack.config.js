@@ -3,17 +3,23 @@ const webpack = require("webpack")
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
-  mode: "production",
+  mode: "development",
   entry: {
     index: "./src/index.ts",
+  },
+  optimization: {
+    usedExports: true,
+    sideEffects: true,
   },
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
+    chunkFilename: "[name].chunk.js",
     libraryTarget: "umd",
     library: "@noahsaso/cosmodal",
     umdNamedDefine: true,
     globalObject: "this",
+    publicPath: '',
   },
   devtool: "source-map",
   module: {

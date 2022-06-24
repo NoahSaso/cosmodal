@@ -7,7 +7,7 @@ import {
   UseWalletResponse,
   WalletConnectionStatus,
 } from "../types"
-import { getChainInfo, getConnectedWalletInfo, Wallets } from "../utils"
+import { getChainInfo, getConnectedWalletInfo } from "../utils"
 
 export const WalletManagerContext = createContext<IWalletManagerContext | null>(
   null
@@ -60,18 +60,10 @@ export const useWallet = (
 
       const chainInfo = await getChainInfo(chainId, chainInfoOverrides)
 
-      const wallet = Wallets.find(
-        ({ type }) => managerConnectedWallet.walletType === type
-      )
-      // Smoke test, should never happen.
-      if (!wallet) {
-        throw new Error(`Internal error: could not find wallet.`)
-      }
-
       setChainIdConnectedWallet(
         // TODO: Cache
         await getConnectedWalletInfo(
-          wallet,
+          managerConnectedWallet.wallet,
           managerConnectedWallet.walletClient,
           chainInfo,
           await getSigningCosmWasmClientOptions?.(chainInfo),

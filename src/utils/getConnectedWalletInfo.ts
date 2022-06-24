@@ -8,7 +8,7 @@ import {
 } from "@cosmjs/stargate"
 import { ChainInfo } from "@keplr-wallet/types"
 
-import { Wallet, WalletClient, WalletType } from "../types"
+import { ConnectedWallet, Wallet, WalletClient, WalletType } from "../types"
 
 export const getConnectedWalletInfo = async (
   wallet: Wallet,
@@ -16,7 +16,7 @@ export const getConnectedWalletInfo = async (
   chainInfo: ChainInfo,
   signingCosmWasmClientOptions?: SigningCosmWasmClientOptions,
   signingStargateClientOptions?: SigningStargateClientOptions
-) => {
+): Promise<ConnectedWallet> => {
   // Only Keplr browser extension supports suggesting chain.
   // Not WalletConnect nor embedded Keplr Mobile web.
   if (wallet.type === WalletType.Keplr && client.mode !== "mobile-web") {
@@ -26,36 +26,34 @@ export const getConnectedWalletInfo = async (
   await client.enable(chainInfo.chainId)
 
   // Parallelize for efficiency.
-
-  const [{ name }, offlineSigner] = await Promise.all([
+  const [{ name, bech32Address: address }, offlineSigner] = await Promise.all([
+    // Get name.
     client.getKey(chainInfo.chainId),
+    // Get offline signer.
     wallet.getOfflineSignerFunction(client)(chainInfo.chainId),
   ])
 
-  const [address, signingCosmWasmClient, signingStargateClient] =
-    await Promise.all([
-      // Get address.
-      offlineSigner.getAccounts().then((accounts) => accounts[0]?.address),
-      // Get CosmWasm client.
-      await SigningCosmWasmClient.connectWithSigner(
-        chainInfo.rpc,
-        offlineSigner,
-        signingCosmWasmClientOptions
-      ),
-      // Get Stargate client.
-      await SigningStargateClient.connectWithSigner(
-        chainInfo.rpc,
-        offlineSigner,
-        signingStargateClientOptions
-      ),
-    ])
+  const [signingCosmWasmClient, signingStargateClient] = await Promise.all([
+    // Get CosmWasm client.
+    await SigningCosmWasmClient.connectWithSigner(
+      chainInfo.rpc,
+      offlineSigner,
+      signingCosmWasmClientOptions
+    ),
+    // Get Stargate client.
+    await SigningStargateClient.connectWithSigner(
+      chainInfo.rpc,
+      offlineSigner,
+      signingStargateClientOptions
+    ),
+  ])
 
   if (address === undefined) {
     throw new Error("Failed to retrieve wallet address.")
   }
 
   return {
-    walletType: wallet.type,
+    wallet,
     walletClient: client,
     chainInfo,
     offlineSigner,

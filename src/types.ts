@@ -10,9 +10,11 @@ import {
 import { ChainInfo, Keplr } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 
-import { KeplrWalletConnectV1 } from "./connectors"
+export interface IKeplrWalletConnectV1 extends Keplr {
+  dontOpenAppOnEnable: boolean
+}
 
-export type WalletClient = Keplr | KeplrWalletConnectV1
+export type WalletClient = Keplr | IKeplrWalletConnectV1
 
 export enum WalletType {
   Keplr = "keplr",
@@ -42,8 +44,8 @@ export interface Wallet {
 }
 
 export interface ConnectedWallet {
-  // Type of wallet.
-  walletType: WalletType
+  // Wallet.
+  wallet: Wallet
   // Wallet client.
   walletClient: WalletClient
   // Chain info the clients are connected to.

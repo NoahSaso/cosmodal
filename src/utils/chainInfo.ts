@@ -434,8 +434,8 @@ export const ChainInfoList: ChainInfo[] = (
       features: ["stargate", "ibc-transfer"],
     },
     {
-      rpc: "https://rpc-juno.keplr.app",
-      rest: "https://lcd-juno.keplr.app",
+      rpc: "https://rpc-juno.itastakers.com",
+      rest: "https://lcd-juno.itastakers.com",
       chainId: ChainInfoID.Juno1,
       chainName: "Juno",
       bip44: {

@@ -123,7 +123,7 @@ This hooks returns the following fields (`ConnectedWallet` with `status` and `er
 | ----------------------- | ------------------------------------ | -------------------------------------------------------- |
 | `status`                | `WalletConnectionStatus`             | Status of connection.                                    |
 | `error`                 | `unknown`                            | Error encountered during the connection process.         |
-| `walletType`            | `WalletType \| undefined`            | Type of wallet.                                          |
+| `wallet`                | `Wallet \| undefined`                | Wallet.                                                  |
 | `walletClient`          | `WalletClient \| undefined`          | Wallet client.                                           |
 | `chainInfo`             | `ChainInfo \| undefined`             | Chain info the clients are connected to.                 |
 | `offlineSigner`         | `OfflineSigner \| undefined`         | Offline signer for the wallet client.                    |
@@ -165,8 +165,8 @@ enum WalletType {
 }
 
 interface ConnectedWallet {
-  // Type of wallet.
-  walletType: WalletType
+  // Wallet.
+  wallet: Wallet
   // Wallet client.
   walletClient: WalletClient
   // Chain info the clients are connected to.

@@ -359,7 +359,13 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Detect if in embedded Keplr Mobile browser, and set ready after.
   useEffect(() => {
-    if (status !== WalletConnectionStatus.Initializing) return
+    if (
+      status !== WalletConnectionStatus.Initializing ||
+      // Only run this on a browser.
+      typeof window === "undefined"
+    ) {
+      return
+    }
 
     getKeplrFromWindow()
       .then(
@@ -373,7 +379,14 @@ export const WalletManagerProvider: FunctionComponent<
 
   // Auto connect on mount handler, after the above mobile web check.
   useEffect(() => {
-    if (status !== WalletConnectionStatus.AttemptingAutoConnection) return
+    if (
+      status !== WalletConnectionStatus.AttemptingAutoConnection ||
+      // Only run this on a browser.
+      typeof localStorage === "undefined"
+    ) {
+      return
+    }
+
     setStatus(WalletConnectionStatus.ReadyForConnection)
 
     if (
@@ -411,7 +424,9 @@ export const WalletManagerProvider: FunctionComponent<
 
   // WalletConnect disconnect listener.
   useEffect(() => {
-    if (!walletConnect) return
+    if (!walletConnect) {
+      return
+    }
 
     // Detect disconnected WC session and clear wallet state.
     walletConnect.on("disconnect", () => {
@@ -423,21 +438,31 @@ export const WalletManagerProvider: FunctionComponent<
 
   // keplr_keystorechange event listener.
   useEffect(() => {
-    if (!onKeplrKeystoreChangeEvent) {
+    if (
+      // Only run this on a browser.
+      typeof window === "undefined"
+    ) {
       return
     }
 
+    const listener = async (event: Event) => {
+      // Reconnect to wallet, since name/address may have changed.
+      if (status === WalletConnectionStatus.Connected && connectedWallet) {
+        _connectToWallet(connectedWallet.wallet)
+      }
+
+      // Execute callback if passed.
+      onKeplrKeystoreChangeEvent?.(event)
+    }
+
     // Add event listener.
-    window.addEventListener("keplr_keystorechange", onKeplrKeystoreChangeEvent)
+    window.addEventListener("keplr_keystorechange", listener)
 
     // Remove event listener on clean up.
     return () => {
-      window.removeEventListener(
-        "keplr_keystorechange",
-        onKeplrKeystoreChangeEvent
-      )
+      window.removeEventListener("keplr_keystorechange", listener)
     }
-  }, [onKeplrKeystoreChangeEvent])
+  }, [onKeplrKeystoreChangeEvent, connectedWallet, status, _connectToWallet])
 
   return (
     <WalletManagerContext.Provider
@@ -461,7 +486,7 @@ export const WalletManagerProvider: FunctionComponent<
         isOpen={status !== WalletConnectionStatus.Resetting && pickerModalOpen}
         onClose={() => setPickerModalOpen(false)}
         selectWallet={_connectToWallet}
-        wallets={Wallets}
+        wallets={enabledWallets}
       />
       <WalletConnectModal
         classNames={classNames}
