@@ -1,7 +1,7 @@
 name: CI
 on: push
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -11,3 +11,5 @@ jobs:
         run: yarn lint
       - name: Run tests
         run: yarn test
+      - name: Build
+        run: yarn build
