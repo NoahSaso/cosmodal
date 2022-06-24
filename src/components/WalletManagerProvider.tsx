@@ -1,6 +1,5 @@
 import { SigningCosmWasmClientOptions } from "@cosmjs/cosmwasm-stargate"
 import { SigningStargateClientOptions } from "@cosmjs/stargate"
-import { ChainInfo } from "@keplr-wallet/types"
 import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
 import React, {
@@ -16,6 +15,7 @@ import React, {
 
 import { KeplrWalletConnectV1 } from "../connectors"
 import {
+  ChainInfoOverrides,
   ConnectedWallet,
   ModalClassNames,
   SigningClientGetter,
@@ -42,12 +42,13 @@ import { WalletManagerContext } from "./WalletManagerContext"
 export type WalletManagerProviderProps = PropsWithChildren<{
   // Wallet types available for connection.
   enabledWalletTypes: WalletType[]
-  // List of ChainInfo objects of possible chains that can be connected to.
-  chainInfoList: ChainInfo[]
   // Chain ID to initially connect to and selected by default if nothing
   // is passed to the hook. Must be present in one of the objects in
   // `chainInfoList`.
-  defaultChainId: ChainInfo["chainId"]
+  defaultChainId: string
+  // List or getter of additional or replacement ChainInfo objects. These
+  // will take precedent over internal definitions by comparing `chainId`.
+  chainInfoOverrides?: ChainInfoOverrides
   // Class names applied to various components for custom theming.
   classNames?: ModalClassNames
   // Custom close icon.
@@ -76,8 +77,8 @@ export const WalletManagerProvider: FunctionComponent<
 > = ({
   children,
   enabledWalletTypes,
-  chainInfoList,
   defaultChainId,
+  chainInfoOverrides,
   classNames,
   closeIcon,
   renderLoader,
@@ -129,8 +130,8 @@ export const WalletManagerProvider: FunctionComponent<
   // Retrieve chain info for initial wallet connection, throwing error if
   // not found.
   const _getDefaultChainInfo = useCallback(
-    () => getChainInfo(chainInfoList, defaultChainId),
-    [chainInfoList, defaultChainId]
+    async () => await getChainInfo(defaultChainId, chainInfoOverrides),
+    [defaultChainId, chainInfoOverrides]
   )
 
   // Closes modals and clears connection state.
@@ -183,10 +184,9 @@ export const WalletManagerProvider: FunctionComponent<
         // Cleared in `cleanupAfterConnection`.
         setWalletEnableModalOpen(true)
 
-        walletClient = await wallet.getClient(
-          _getDefaultChainInfo(),
-          _walletConnect
-        )
+        const chainInfo = await _getDefaultChainInfo()
+
+        walletClient = await wallet.getClient(chainInfo, _walletConnect)
         if (!walletClient) {
           throw new Error("Failed to retrieve wallet client.")
         }
@@ -197,7 +197,6 @@ export const WalletManagerProvider: FunctionComponent<
         }
 
         // Save connected wallet data.
-        const chainInfo = _getDefaultChainInfo()
         setConnectedWallet(
           await getConnectedWalletInfo(
             wallet,
@@ -449,7 +448,7 @@ export const WalletManagerProvider: FunctionComponent<
         status,
         error,
         isEmbeddedKeplrMobileWeb,
-        chainInfoList,
+        chainInfoOverrides,
         getSigningCosmWasmClientOptions,
         getSigningStargateClientOptions,
       }}

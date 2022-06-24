@@ -64,6 +64,10 @@ export type SigningClientGetter<T> = (
   chainInfo: ChainInfo
 ) => T | Promise<T | undefined> | undefined
 
+export type ChainInfoOverrides =
+  | ChainInfo[]
+  | (() => undefined | ChainInfo[] | Promise<undefined | ChainInfo[]>)
+
 export interface IWalletManagerContext {
   // Function to begin the connection process. This will either display
   // the wallet picker modal or immediately attempt to connect to a wallet
@@ -79,10 +83,11 @@ export interface IWalletManagerContext {
   error?: unknown
   // If this app is running inside the Keplr Mobile web interface.
   isEmbeddedKeplrMobileWeb: boolean
-  // List of ChainInfo objects of possible chains that can be connected to.
+  // List or getter of additional or replacement ChainInfo objects. These
+  // will take precedent over internal definitions by comparing `chainId`.
   // This is passed through from the provider props to allow composition
   // of your own hooks, and for use in the built-in useWallet hook.
-  chainInfoList: ChainInfo[]
+  chainInfoOverrides?: ChainInfoOverrides
   // Getter for options passed to SigningCosmWasmClient on connection.
   // This is passed through from the provider props to allow composition
   // of your own hooks, and for use in the built-in useWallet hook.

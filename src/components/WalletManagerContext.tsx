@@ -29,7 +29,7 @@ export const useWallet = (
     status: managerStatus,
     error: managerError,
     connectedWallet: managerConnectedWallet,
-    chainInfoList,
+    chainInfoOverrides,
     getSigningCosmWasmClientOptions,
     getSigningStargateClientOptions,
   } = useWalletManager()
@@ -58,7 +58,7 @@ export const useWallet = (
       setChainIdStatus(WalletConnectionStatus.Connecting)
       setChainIdError(undefined)
 
-      const chainInfo = getChainInfo(chainInfoList, chainId)
+      const chainInfo = await getChainInfo(chainId, chainInfoOverrides)
 
       const wallet = Wallets.find(
         ({ type }) => managerConnectedWallet.walletType === type
@@ -90,9 +90,9 @@ export const useWallet = (
     managerStatus,
     managerConnectedWallet,
     chainId,
-    chainInfoList,
     getSigningCosmWasmClientOptions,
     getSigningStargateClientOptions,
+    chainInfoOverrides,
   ])
 
   const status = chainId ? chainIdStatus : managerStatus
