@@ -1,6 +1,7 @@
-const path = require("path");
-const webpack = require("webpack");
+const path = require("path")
+const webpack = require("webpack")
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
   mode: "production",
   entry: {
@@ -17,7 +18,11 @@ module.exports = {
   devtool: "source-map",
   module: {
     rules: [
-      { test: /\.tsx?$/, loader: "ts-loader" },
+      {
+        test: /\.tsx?$/,
+        exclude: [/.+\.(test|spec)\.[tj]sx/],
+        loader: "ts-loader",
+      },
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: [
@@ -65,4 +70,4 @@ module.exports = {
       root: "ReactDOM",
     },
   },
-};
+}
