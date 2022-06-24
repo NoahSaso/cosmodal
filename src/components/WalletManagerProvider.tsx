@@ -1,5 +1,6 @@
 import { SigningCosmWasmClientOptions } from "@cosmjs/cosmwasm-stargate"
 import { SigningStargateClientOptions } from "@cosmjs/stargate"
+import { getKeplrFromWindow } from "@keplr-wallet/stores"
 import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
 import React, {
@@ -27,7 +28,6 @@ import {
 import {
   getChainInfo,
   getConnectedWalletInfo,
-  getKeplrFromWindow,
   KeplrWallet,
   Wallets,
 } from "../utils"
