@@ -1,17 +1,18 @@
-import { useWalletManager } from "@noahsaso/cosmodal"
+import { Status, useWallet, useWalletManager } from "@noahsaso/cosmodal"
 import type { NextPage } from "next"
 import { useCallback, useState } from "react"
 
 const Home: NextPage = () => {
-  const { connect, disconnect, connectedWallet, connectionError } =
+  const { connect, disconnect } =
     useWalletManager()
+  const { status: walletStatus, error, name, address, signingCosmWasmClient } = useWallet()
 
   const [contractAddress, setContractAddress] = useState("")
   const [msg, setMsg] = useState("")
   const [status, setStatus] = useState("")
 
   const execute = useCallback(async () => {
-    if (!connectedWallet?.address || !connectedWallet?.signingClient) return
+    if (!address || !signingCosmWasmClient) return
 
     setStatus("Loading...")
 
@@ -20,8 +21,8 @@ const Home: NextPage = () => {
       const msgObject = JSON.parse(msg)
 
       // Execute message.
-      const result = await connectedWallet.signingClient.execute(
-        connectedWallet.address,
+      const result = await signingCosmWasmClient.execute(
+        address,
         contractAddress,
         msgObject,
         "auto"
@@ -33,18 +34,18 @@ const Home: NextPage = () => {
       console.error(err)
       setStatus(`Error: ${err instanceof Error ? err.message : `${err}`}`)
     }
-  }, [connectedWallet, contractAddress, msg])
+  }, [address, contractAddress, msg, signingCosmWasmClient])
 
   return (
     <div className="absolute top-0 right-0 left-0 bottom-0 flex justify-center items-center">
       <div className="flex flex-col items-stretch gap-2 max-w-[90vw] max-h-[90vh]">
-        {connectedWallet ? (
+        {walletStatus === Status.Connected ? (
           <>
             <p>
-              Name: <b>{connectedWallet.name}</b>
+              Name: <b>{name}</b>
             </p>
             <p>
-              Address: <b>{connectedWallet.address}</b>
+              Address: <b>{address}</b>
             </p>
             <button
               onClick={disconnect}
@@ -87,11 +88,11 @@ const Home: NextPage = () => {
             >
               Connect
             </button>
-            {connectionError ? (
+            {error ? (
               <p>
-                {connectionError instanceof Error
-                  ? connectionError.message
-                  : `${connectionError}`}
+                {error instanceof Error
+                  ? error.message
+                  : `${error}`}
               </p>
             ) : undefined}
           </>

@@ -14,7 +14,7 @@
     "@keplr-wallet/cosmos": "^0.10.5",
     "@keplr-wallet/stores": "^0.10.5",
     "@keplr-wallet/types": "^0.10.5",
-    "@noahsaso/cosmodal": "^0.4.6",
+    "@noahsaso/cosmodal": "^0.4.10",
     "@walletconnect/client": "^1.7.8",
     "next": "12.1.6",
     "react": "18.2.0",

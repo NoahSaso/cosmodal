@@ -1,17 +1,14 @@
 import "../styles/globals.css"
 
-import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate"
-import { GasPrice } from "@cosmjs/stargate"
 import { Bech32Address } from "@keplr-wallet/cosmos"
-import { getKeplrFromWindow } from "@keplr-wallet/stores"
 import { ChainInfo } from "@keplr-wallet/types"
 import {
-  KeplrWalletConnectV1,
-  Wallet,
   WalletManagerProvider,
+  WalletType,
 } from "@noahsaso/cosmodal"
 import type { AppProps } from "next/app"
 import { FunctionComponent } from "react"
+import { GasPrice } from "@cosmjs/stargate"
 
 const LOCAL_STORAGE_KEY = "connectedWalletId"
 
@@ -23,18 +20,17 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
       url: "https://noahsaso-cosmodal.vercel.app",
       icons: ["https://moonphase.is/image.svg"],
     }}
-    wallets={AvailableWallets}
+    enabledWalletTypes={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
     renderLoader={() => <p>Loading...</p>}
     localStorageKey={LOCAL_STORAGE_KEY}
-    saveToLocalStorageOnConnect
-    clearLocalStorageOnDisconnect
-    useLocalStorageForAutoConnect
-    // Auto connect if value is present. Check existence of localStorage
-    // to prevent server rendering issues.
-    attemptAutoConnect={
-      typeof localStorage !== "undefined" &&
-      !!localStorage.getItem(LOCAL_STORAGE_KEY)
-    }
+    chainInfoList={[JUNO_TESTNET_CHAIN_INFO]}
+    defaultChainId={JUNO_TESTNET_CHAIN_INFO.chainId}
+    getSigningCosmWasmClientOptions={(chainInfo) => ({
+      gasPrice: GasPrice.fromString("0.0025" + chainInfo.feeCurrencies[0].coinMinimalDenom),
+    })}
+    getSigningStargateClientOptions={(chainInfo) => ({
+      gasPrice: GasPrice.fromString("0.0025" + chainInfo.feeCurrencies[0].coinMinimalDenom),
+    })}
   >
     <Component {...pageProps} />
   </WalletManagerProvider>
@@ -42,10 +38,8 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
 
 export default MyApp
 
-const CHAIN_ID: string = "uni-3"
 const GAS_PRICE: string = "0.0025ujunox"
-const CHAIN_RPC_NODE: string = "https://rpc.uni.juno.deuslabs.fi"
-const CHAIN_INFO: ChainInfo = {
+const JUNO_TESTNET_CHAIN_INFO: ChainInfo = {
   rpc: "https://rpc.uni.juno.deuslabs.fi",
   rest: "https://lcd.uni.juno.deuslabs.fi",
   chainId: "uni-3",
@@ -82,103 +76,3 @@ const CHAIN_INFO: ChainInfo = {
     high: 0.05,
   },
 }
-
-const AvailableWallets: Wallet[] = [
-  {
-    id: "mobile-web",
-    name: "",
-    description: "",
-    imageUrl: "",
-    isWalletConnect: false,
-    // Will not be shown in the picker since `isMobileWeb` is true.
-    isMobileWeb: true,
-    getClient: getKeplrFromWindow,
-    getName: async (client) => {
-      const info = await client.getKey(CHAIN_ID)
-      return info?.name
-    },
-    getOfflineSigner: async (client) => {
-      await client.enable(CHAIN_ID)
-      return await client.getOfflineSignerAuto(CHAIN_ID)
-    },
-    getSigningClient: async (_, signer) => {
-      if (!signer) return
-
-      return await SigningCosmWasmClient.connectWithSigner(
-        CHAIN_RPC_NODE,
-        signer,
-        { gasPrice: GasPrice.fromString(GAS_PRICE) }
-      )
-    },
-  },
-  {
-    id: "keplr-wallet-extension",
-    name: "Keplr Wallet",
-    description: "Keplr Chrome Extension",
-    imageUrl: "/keplr-wallet-extension.png",
-    isWalletConnect: false,
-    isMobileWeb: false,
-    getClient: getKeplrFromWindow,
-    getName: async (client) => {
-      const info = await client.getKey(CHAIN_ID)
-      return info?.name
-    },
-    getOfflineSigner: async (client) => {
-      await client.experimentalSuggestChain(CHAIN_INFO)
-      await client.enable(CHAIN_ID)
-      return await client.getOfflineSignerAuto(CHAIN_ID)
-    },
-    getSigningClient: async (_, signer) => {
-      if (!signer) return
-
-      return await SigningCosmWasmClient.connectWithSigner(
-        CHAIN_RPC_NODE,
-        signer,
-        { gasPrice: GasPrice.fromString(GAS_PRICE) }
-      )
-    },
-    onSelect: async () => {
-      const hasKeplr = !!(await getKeplrFromWindow())
-      if (!hasKeplr) {
-        throw new Error("Keplr not installed.")
-      }
-    },
-  },
-  // WalletConnect only supports mainnet. Not testnet.
-  ...(CHAIN_ID === "juno-1"
-    ? ([
-        {
-          id: "walletconnect-keplr",
-          name: "WalletConnect",
-          description: "Keplr Mobile",
-          imageUrl: "/walletconnect-keplr.png",
-          isWalletConnect: true,
-          isMobileWeb: false,
-          getClient: async (walletConnect) => {
-            if (walletConnect?.connected)
-              return new KeplrWalletConnectV1(walletConnect, [CHAIN_INFO])
-            throw new Error("Mobile wallet not connected.")
-          },
-          getName: async (client) => {
-            const info = await client.getKey(CHAIN_ID)
-            return info?.name
-          },
-          getOfflineSigner: async (client) => {
-            // WalletConnect does not support suggesting chain.
-            await client.enable(CHAIN_ID)
-            // WalletConnect only supports Amino signing.
-            return await client.getOfflineSignerOnlyAmino(CHAIN_ID)
-          },
-          getSigningClient: async (_, signer) => {
-            if (!signer) return
-
-            return await SigningCosmWasmClient.connectWithSigner(
-              CHAIN_RPC_NODE,
-              signer,
-              { gasPrice: GasPrice.fromString(GAS_PRICE) }
-            )
-          },
-        },
-      ] as Wallet[])
-    : []),
-]
