@@ -39,5 +39,13 @@
         "argsIgnorePattern": "^_"
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["./src/tests/**/*"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
 }
