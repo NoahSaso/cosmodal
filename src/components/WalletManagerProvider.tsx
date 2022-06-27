@@ -1,6 +1,5 @@
 import { SigningCosmWasmClientOptions } from "@cosmjs/cosmwasm-stargate"
 import { SigningStargateClientOptions } from "@cosmjs/stargate"
-import { getKeplrFromWindow } from "@keplr-wallet/stores"
 import WalletConnect from "@walletconnect/client"
 import { IClientMeta } from "@walletconnect/types"
 import React, {
@@ -220,7 +219,9 @@ export const WalletManagerProvider: FunctionComponent<
         if (wallet.type === WalletType.WalletConnectKeplr) {
           // Instantiate new WalletConnect instance if necessary.
           if (!_walletConnect) {
-            _walletConnect = new WalletConnect({
+            _walletConnect = new (
+              await import("@walletconnect/client")
+            ).default({
               bridge: "https://bridge.walletconnect.org",
               signingMethods: [
                 "keplr_enable_wallet_connect_v1",
@@ -367,7 +368,8 @@ export const WalletManagerProvider: FunctionComponent<
       return
     }
 
-    getKeplrFromWindow()
+    import("@keplr-wallet/stores")
+      .then(({ getKeplrFromWindow }) => getKeplrFromWindow())
       .then(
         (keplr) =>
           keplr &&
