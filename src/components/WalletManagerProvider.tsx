@@ -466,21 +466,35 @@ export const WalletManagerProvider: FunctionComponent<
     }
   }, [onKeplrKeystoreChangeEvent, connectedWallet, status, _connectToWallet])
 
+  // Memoize context data.
+  const value = useMemo(
+    () => ({
+      connect: beginConnection,
+      disconnect,
+      connectedWallet,
+      status,
+      connected: status === WalletConnectionStatus.Connected,
+      error,
+      isEmbeddedKeplrMobileWeb,
+      chainInfoOverrides,
+      getSigningCosmWasmClientOptions,
+      getSigningStargateClientOptions,
+    }),
+    [
+      beginConnection,
+      chainInfoOverrides,
+      connectedWallet,
+      disconnect,
+      error,
+      getSigningCosmWasmClientOptions,
+      getSigningStargateClientOptions,
+      isEmbeddedKeplrMobileWeb,
+      status,
+    ]
+  )
+
   return (
-    <WalletManagerContext.Provider
-      value={{
-        connect: beginConnection,
-        disconnect,
-        connectedWallet,
-        status,
-        connected: status === WalletConnectionStatus.Connected,
-        error,
-        isEmbeddedKeplrMobileWeb,
-        chainInfoOverrides,
-        getSigningCosmWasmClientOptions,
-        getSigningStargateClientOptions,
-      }}
-    >
+    <WalletManagerContext.Provider value={value}>
       {children}
 
       <SelectWalletModal
