@@ -9,22 +9,18 @@ import {
 } from "../types"
 import { getChainInfo, getConnectedWalletInfo } from "../utils"
 
-export const WalletManagerContext = createContext<IWalletManagerContext>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  connect: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  disconnect: async () => {},
-  connectedWallet: undefined,
-  status: WalletConnectionStatus.Initializing,
-  connected: false,
-  error: undefined,
-  isEmbeddedKeplrMobileWeb: false,
-  chainInfoOverrides: undefined,
-  getSigningCosmWasmClientOptions: undefined,
-  getSigningStargateClientOptions: undefined,
-})
+export const WalletManagerContext = createContext<IWalletManagerContext | null>(
+  null
+)
 
-export const useWalletManager = () => useContext(WalletManagerContext)
+export const useWalletManager = () => {
+  const context = useContext(WalletManagerContext)
+  if (!context) {
+    throw new Error("You forgot to use WalletManagerProvider.")
+  }
+
+  return context
+}
 
 export const useWallet = (
   chainId?: ChainInfo["chainId"]
