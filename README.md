@@ -36,7 +36,7 @@ yarn add @noahsaso/cosmodal
 const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
   <WalletManagerProvider
     defaultChainId={ChainInfoID.Juno1}
-    enabledWallets={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
+    enabledWalletTypes={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
     walletConnectClientMeta={{
       name: "CosmodalExampleDAPP",
       description: "A dapp using the cosmodal library.",
