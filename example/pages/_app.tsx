@@ -29,6 +29,13 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
     getSigningStargateClientOptions={(chainInfo) => ({
       gasPrice: GasPrice.fromString("0.0025" + chainInfo.feeCurrencies[0].coinMinimalDenom),
     })}
+    // Choose a different RPC node for the desired chain.
+    // chainInfoOverrides={[
+    //   {
+    //     ...ChainInfoMap[ChainInfoID.Juno1],
+    //     rpc: "https://another.rpc.com",
+    //   }
+    // ]}
   >
     <Component {...pageProps} />
   </WalletManagerProvider>
