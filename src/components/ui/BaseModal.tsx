@@ -54,21 +54,23 @@ export const BaseModal: FunctionComponent<BaseModalProps> = ({
         <ModalOverlay {...props}>{children}</ModalOverlay>
       )}
     >
-      {typeof title === "string" ? (
-        <ModalHeader className={classNames?.modalHeader}>{title}</ModalHeader>
-      ) : (
-        title
-      )}
+      <>
+        {typeof title === "string" ? (
+          <ModalHeader className={classNames?.modalHeader}>{title}</ModalHeader>
+        ) : (
+          title
+        )}
 
-      {onClose && (
-        <ModalCloseButton
-          className={classNames?.modalCloseButton}
-          onClick={onClose}
-        >
-          {closeIcon ?? <DefaultCloseIcon height={26} width={26} />}
-        </ModalCloseButton>
-      )}
-      {children}
+        {onClose && (
+          <ModalCloseButton
+            className={classNames?.modalCloseButton}
+            onClick={onClose}
+          >
+            {closeIcon ?? <DefaultCloseIcon height={26} width={26} />}
+          </ModalCloseButton>
+        )}
+        {children}
+      </>
     </ReactModal>
   )
 }
