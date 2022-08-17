@@ -247,7 +247,7 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
   },
   [ChainInfoID.ChronicNetwork1]: {
     rpc: "https://rpc.chronic.nodestake.top/",
-    rest: "",
+    rest: "https://api-chronic.zenchainlabs.io/",
     chainId: ChainInfoID.ChronicNetwork1,
     chainName: "Chronic Network",
     bip44: {

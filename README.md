@@ -41,7 +41,7 @@ import {
 
 const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
   <WalletManagerProvider
-    defaultChainId={ChainInfoID.Juno1}
+    defaultChainId={ChainInfoID.ChronicNetwork1}
     enabledWalletTypes={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
     walletConnectClientMeta={{
       name: "CosmodalExampleDAPP",
