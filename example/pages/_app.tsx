@@ -22,7 +22,7 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
     enabledWalletTypes={[WalletType.Keplr, WalletType.WalletConnectKeplr]}
     renderLoader={() => <p>Loading...</p>}
     localStorageKey={LOCAL_STORAGE_KEY}
-    defaultChainId={ChainInfoID.ChronicNetwork1}
+    defaultChainId={ChainInfoID.Juno1}
     getSigningCosmWasmClientOptions={(chainInfo) => ({
       gasPrice: GasPrice.fromString("0.0025" + chainInfo.feeCurrencies[0].coinMinimalDenom),
     })}
