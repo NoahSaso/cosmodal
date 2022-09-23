@@ -429,10 +429,10 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
       "cosmwasm",
     ],
   },
-  [ChainInfoID.Uni3]: {
+  [ChainInfoID.Uni5]: {
     rpc: "https://rpc.uni.juno.deuslabs.fi",
     rest: "https://lcd.uni.juno.deuslabs.fi",
-    chainId: ChainInfoID.Uni3,
+    chainId: ChainInfoID.Uni5,
     chainName: "Juno Testnet",
     bip44: {
       coinType: 118,
