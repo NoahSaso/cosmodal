@@ -22,15 +22,19 @@ yarn && yarn dev
 
 ## Setup
 
-1. Install the Cosmodal package in your React project
+1. Install the Cosmodal package in your React project along with its `@cosmjs/*`
+   peer dependencies.
 
 ```sh
-npm install --save @noahsaso/cosmodal
+npm install --save @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/encoding @cosmjs/stargate
 # OR
-yarn add @noahsaso/cosmodal
+yarn add @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/encoding @cosmjs/stargate
 ```
 
-2. Import `WalletManagerProvider` and wrap it around your whole app. Only include it once as an ancestor of all components that need to access the wallet. Likely you'll want this in your root App component. Check out the example code to see how to define wallets.
+2. Import `WalletManagerProvider` and wrap it around your whole app. Only
+   include it once as an ancestor of all components that need to access the
+   wallet. Likely you'll want this in your root App component. Check out the
+   example code to see how to define wallets.
 
 ```tsx
 import {
@@ -127,7 +131,13 @@ This hook returns all relevant fields, but you will likely only use this to `con
 (chainId?: ChainInfo["chainId"]) => UseWalletResponse
 ```
 
-This hook is a subset of `useWalletManager`, returning the fields inside the `connectedWallet` object, as well as `status` and `error`. It also takes an optional `chainId`, which will instantiate clients for the desired chain once the wallet is connected. This lets you seamlessly connect and use clients for many different chains. If no `chainId` is passed, it will return the connection info for the default chain (from the initial wallet connection via `useWalletManager`'s `connect` function).
+This hook is a subset of `useWalletManager`, returning the fields inside the
+`connectedWallet` object, as well as `status` and `error`. It also takes an
+optional `chainId`, which will instantiate clients for the desired chain once
+the wallet is connected. This lets you seamlessly connect and use clients for
+many different chains. If no `chainId` is passed, it will return the connection
+info for the default chain (from the initial wallet connection via
+`useWalletManager`'s `connect` function).
 
 ### useConnectWalletToChain
 
