@@ -12,6 +12,7 @@ It can also be run locally using these commands:
 # Clone the repo.
 git clone https://github.com/NoahSaso/cosmodal
 # Enter the example folder.
+yarn && yarn build
 cd cosmodal/example
 
 # Start the Next.js dev server.
