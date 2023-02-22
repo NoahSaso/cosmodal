@@ -26,9 +26,9 @@ yarn && yarn dev
    peer dependencies.
 
 ```sh
-npm install --save @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/encoding @cosmjs/proto-signing @cosmjs/stargate
+npm install --save @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/crypto @cosmjs/encoding @cosmjs/proto-signing @cosmjs/stargate
 # OR
-yarn add @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/encoding @cosmjs/proto-signing @cosmjs/stargate
+yarn add @noahsaso/cosmodal @cosmjs/cosmwasm-stargate @cosmjs/crypto @cosmjs/encoding @cosmjs/proto-signing @cosmjs/stargate
 ```
 
 2. Import `WalletManagerProvider` and wrap it around your whole app. Only

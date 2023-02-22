@@ -1,6 +1,6 @@
 {
   "name": "@noahsaso/cosmodal",
-  "version": "0.8.6",
+  "version": "0.8.7",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NoahSaso/cosmodal.git"
@@ -52,6 +52,7 @@
     "@babel/register": "^7.17.7",
     "@cosmjs/launchpad": "0.27.1",
     "@cosmjs/cosmwasm-stargate": "^0.29.5",
+    "@cosmjs/crypto": "^0.29.5",
     "@cosmjs/encoding": "^0.29.5",
     "@cosmjs/proto-signing": "^0.29.5",
     "@cosmjs/stargate": "^0.29.5",
@@ -99,6 +100,7 @@
   },
   "peerDependencies": {
     "@cosmjs/cosmwasm-stargate": "^0.28 || ^0.29",
+    "@cosmjs/crypto": "^0.28 || ^0.29",
     "@cosmjs/encoding": "^0.28 || ^0.29",
     "@cosmjs/proto-signing": "^0.28 || ^0.29",
     "@cosmjs/stargate": "^0.28 || ^0.29",
