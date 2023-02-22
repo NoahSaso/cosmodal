@@ -1,6 +1,6 @@
 {
   "name": "@noahsaso/cosmodal",
-  "version": "0.8.4",
+  "version": "0.8.6",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NoahSaso/cosmodal.git"
@@ -51,7 +51,10 @@
     "@babel/preset-typescript": "^7.17.12",
     "@babel/register": "^7.17.7",
     "@cosmjs/launchpad": "0.27.1",
-    "@cosmjs/proto-signing": "0.29.3",
+    "@cosmjs/cosmwasm-stargate": "^0.29.5",
+    "@cosmjs/encoding": "^0.29.5",
+    "@cosmjs/proto-signing": "^0.29.5",
+    "@cosmjs/stargate": "^0.29.5",
     "@keplr-wallet/types": "^0.10.8",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
@@ -97,6 +100,7 @@
   "peerDependencies": {
     "@cosmjs/cosmwasm-stargate": "^0.28 || ^0.29",
     "@cosmjs/encoding": "^0.28 || ^0.29",
+    "@cosmjs/proto-signing": "^0.28 || ^0.29",
     "@cosmjs/stargate": "^0.28 || ^0.29",
     "react": "^16 || ^17 || ^18",
     "react-dom": "^16 || ^17 || ^18"

@@ -11,11 +11,12 @@
   "dependencies": {
     "@cosmjs/amino": "0.29.5",
     "@cosmjs/cosmwasm-stargate": "0.29.5",
+    "@cosmjs/proto-signing": "0.29.5",
     "@cosmjs/stargate": "0.29.5",
     "@keplr-wallet/cosmos": "^0.10.5",
     "@keplr-wallet/stores": "^0.10.5",
     "@keplr-wallet/types": "^0.10.5",
-    "@noahsaso/cosmodal": "0.8.4",
+    "@noahsaso/cosmodal": "0.8.6",
     "@walletconnect/client": "^1.7.8",
     "next": "12.1.6",
     "react": "^18.2.0",
