@@ -2,6 +2,18 @@ import { Wallet, WalletType } from "../types"
 
 // TODO: Move imageUrl, and maybe name/description, to user configuration somehow, or incorporate in planned configurable UI overhaul.
 
+export const LeapWallet: Wallet = {
+  type: WalletType.Leap,
+  name: "Leap Wallet",
+  description: "Leap Cosmos Extension",
+  imageUrl:
+    "https://raw.githubusercontent.com/leapwallet/assets/2289486990e1eaf9395270fffd1c41ba344ef602/images/leap-cosmos-logo.png",
+  getClient: async () => window.leap,
+  getOfflineSignerFunction: (client) =>
+    // This function expects to be bound to the `client` instance.
+    client.getOfflineSignerAuto.bind(client),
+}
+
 export const KeplrWallet: Wallet = {
   type: WalletType.Keplr,
   name: "Keplr Wallet",

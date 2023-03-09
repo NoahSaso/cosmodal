@@ -17,6 +17,7 @@ export interface IKeplrWalletConnectV1 extends Keplr {
 export type WalletClient = Keplr | IKeplrWalletConnectV1
 
 export enum WalletType {
+  Leap = "leap",
   Keplr = "keplr",
   WalletConnectKeplr = "walletconnect_keplr",
 }
