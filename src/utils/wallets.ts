@@ -12,6 +12,7 @@ export const LeapWallet: Wallet = {
   getOfflineSignerFunction: (client) =>
     // This function expects to be bound to the `client` instance.
     client.getOfflineSignerAuto.bind(client),
+  windowKeystoreRefreshEvent: "leap_keystorechange",
 }
 
 export const KeplrWallet: Wallet = {
