@@ -30,7 +30,10 @@ npm install --save @noahsaso/cosmodal
 yarn add @noahsaso/cosmodal
 ```
 
-2. Import `WalletManagerProvider` and wrap it around your whole app. Only include it once as an ancestor of all components that need to access the wallet. Likely you'll want this in your root App component. Check out the example code to see how to define wallets.
+2. Import `WalletManagerProvider` and wrap it around your whole app. Only
+   include it once as an ancestor of all components that need to access the
+   wallet. Likely you'll want this in your root App component. Check out the
+   example code to see how to define wallets.
 
 ```tsx
 import {
@@ -57,7 +60,8 @@ const MyApp: FunctionComponent<AppProps> = ({ Component, pageProps }) => (
 export default MyApp
 ```
 
-3. Manage the wallet by using the `useWalletManager` and `useWallet` hooks in your pages and components.
+3. Manage the wallet by using the `useWalletManager` and `useWallet` hooks in
+   your pages and components.
 
 ```tsx
 import {
@@ -108,7 +112,7 @@ This component takes the following properties:
 | `renderLoader`                    | `() => ReactNode`                                                |          | A custom loader to display in a few modals, such as when enabling the wallet.                                                                                                                                                   |
 | `preselectedWalletType`           | `WalletType`                                                     |          | When set to a valid wallet type, the connect function will skip the selection modal and attempt to connect to this wallet immediately.                                                                                          |
 | `localStorageKey`                 | `string`                                                         |          | localStorage key for saving, loading, and auto connecting to a wallet.                                                                                                                                                          |
-| `onKeplrKeystoreChangeEvent`      | `(event: Event) => unknown`                                      |          | Callback that will be attached as a listener to the `keplr_keystorechange` event on the window object.                                                                                                                          |
+| `onKeystoreChangeEvent`           | `(event: Event) => unknown`                                      |          | Callback that will be attached as a listener to the `keplr_keystorechange` event on the window object.                                                                                                                          |
 | `getSigningCosmWasmClientOptions` | `SigningClientGetter<SigningCosmWasmClientOptions> \| undefined` |          | Getter for options passed to SigningCosmWasmClient on connection.                                                                                                                                                               |
 | `getSigningStargateClientOptions` | `SigningClientGetter<SigningStargateClientOptions> \| undefined` |          | Getter for options passed to SigningStargateClient on connection.                                                                                                                                                               |
 | `showEnablingModalOnAutoconnect`  | `boolean \| undefined`                                           |          | Shows the enabling modal on autoconnect. The default behavior is to hide it on autoconnect, since most times it will silently succeed from a previous connection, and the enabling modal is distracting during first page load. |
@@ -119,7 +123,8 @@ This component takes the following properties:
 () => IWalletManagerContext
 ```
 
-This hook returns all relevant fields, but you will likely only use this to `connect` and `disconnect`.
+This hook returns all relevant fields, but you will likely only use this to
+`connect` and `disconnect`.
 
 ### useWallet
 
@@ -127,7 +132,13 @@ This hook returns all relevant fields, but you will likely only use this to `con
 (chainId?: ChainInfo["chainId"]) => UseWalletResponse
 ```
 
-This hook is a subset of `useWalletManager`, returning the fields inside the `connectedWallet` object, as well as `status` and `error`. It also takes an optional `chainId`, which will instantiate clients for the desired chain once the wallet is connected. This lets you seamlessly connect and use clients for many different chains. If no `chainId` is passed, it will return the connection info for the default chain (from the initial wallet connection via `useWalletManager`'s `connect` function).
+This hook is a subset of `useWalletManager`, returning the fields inside the
+`connectedWallet` object, as well as `status` and `error`. It also takes an
+optional `chainId`, which will instantiate clients for the desired chain once
+the wallet is connected. This lets you seamlessly connect and use clients for
+many different chains. If no `chainId` is passed, it will return the connection
+info for the default chain (from the initial wallet connection via
+`useWalletManager`'s `connect` function).
 
 ### useConnectWalletToChain
 
@@ -277,9 +288,10 @@ interface WalletManagerProviderProps {
   preselectedWalletType?: `${WalletType}`
   // localStorage key for saving, loading, and auto connecting to a wallet.
   localStorageKey?: string
-  // Callback that will be attached as a listener to the
-  // `keplr_keystorechange` event on the window object.
-  onKeplrKeystoreChangeEvent?: (event: Event) => unknown
+  // Callback that will be attached as a listener to the keystore change event
+  // on the window object. The event key is determined by the
+  // `windowKeystoreRefreshEvent` field in the wallet definition.
+  onKeystoreChangeEvent?: (event: Event) => unknown
   // Getter for options passed to SigningCosmWasmClient on connection.
   getSigningCosmWasmClientOptions?: SigningClientGetter<SigningCosmWasmClientOptions>
   // Getter for options passed to SigningStargateClient on connection.

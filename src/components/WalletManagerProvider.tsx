@@ -62,9 +62,10 @@ export type WalletManagerProviderProps = PropsWithChildren<{
   preselectedWalletType?: `${WalletType}`
   // localStorage key for saving, loading, and auto connecting to a wallet.
   localStorageKey?: string
-  // Callback that will be attached as a listener to the
-  // `keplr_keystorechange` event on the window object.
-  onKeplrKeystoreChangeEvent?: (event: Event) => unknown
+  // Callback that will be attached as a listener to the keystore change event
+  // on the window object. The event key is determined by the
+  // `windowKeystoreRefreshEvent` field in the wallet definition.
+  onKeystoreChangeEvent?: (event: Event) => unknown
   // Getter for options passed to SigningCosmWasmClient on connection.
   getSigningCosmWasmClientOptions?: SigningClientGetter<SigningCosmWasmClientOptions>
   // Getter for options passed to SigningStargateClient on connection.
@@ -89,7 +90,7 @@ export const WalletManagerProvider: FunctionComponent<
   walletConnectClientMeta,
   preselectedWalletType,
   localStorageKey,
-  onKeplrKeystoreChangeEvent,
+  onKeystoreChangeEvent,
   getSigningCosmWasmClientOptions,
   getSigningStargateClientOptions,
   showEnablingModalOnAutoconnect = false,
@@ -453,14 +454,19 @@ export const WalletManagerProvider: FunctionComponent<
     })
   }, [_cleanupAfterConnection, disconnect, walletConnect])
 
-  // keplr_keystorechange event listener.
+  // Keystore change event listener.
   useEffect(() => {
     if (
       // Only run this on a browser.
-      typeof window === "undefined"
+      typeof window === "undefined" ||
+      // Only run this if we are connected to a wallet that has a keystore chang
+      // event specified.
+      !connectedWallet?.wallet.windowKeystoreRefreshEvent
     ) {
       return
     }
+
+    const { windowKeystoreRefreshEvent } = connectedWallet.wallet
 
     const listener = async (event: Event) => {
       // Reconnect to wallet, since name/address may have changed.
@@ -469,17 +475,17 @@ export const WalletManagerProvider: FunctionComponent<
       }
 
       // Execute callback if passed.
-      onKeplrKeystoreChangeEvent?.(event)
+      onKeystoreChangeEvent?.(event)
     }
 
     // Add event listener.
-    window.addEventListener("keplr_keystorechange", listener)
+    window.addEventListener(windowKeystoreRefreshEvent, listener)
 
     // Remove event listener on clean up.
     return () => {
-      window.removeEventListener("keplr_keystorechange", listener)
+      window.removeEventListener(windowKeystoreRefreshEvent, listener)
     }
-  }, [onKeplrKeystoreChangeEvent, connectedWallet, status, _connectToWallet])
+  }, [onKeystoreChangeEvent, connectedWallet, status, _connectToWallet])
 
   // Memoize context data.
   const value = useMemo(

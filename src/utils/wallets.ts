@@ -24,6 +24,7 @@ export const KeplrWallet: Wallet = {
   getOfflineSignerFunction: (client) =>
     // This function expects to be bound to the `client` instance.
     client.getOfflineSignerAuto.bind(client),
+  windowKeystoreRefreshEvent: "keplr_keystorechange",
 }
 
 export const WalletConnectKeplrWallet: Wallet = {
@@ -44,6 +45,7 @@ export const WalletConnectKeplrWallet: Wallet = {
   getOfflineSignerFunction: (client) =>
     // This function expects to be bound to the `client` instance.
     client.getOfflineSignerOnlyAmino.bind(client),
+  windowKeystoreRefreshEvent: "keplr_keystorechange",
 }
 
 export const Wallets: Wallet[] = [KeplrWallet, WalletConnectKeplrWallet]

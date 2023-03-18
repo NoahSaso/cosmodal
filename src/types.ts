@@ -42,6 +42,9 @@ export interface Wallet {
   getOfflineSignerFunction: (
     client: WalletClient
   ) => (chainId: string) => OfflineSigner | Promise<OfflineSigner>
+  // The event to listen for on the window to determine when the wallet client
+  // account info should refresh.
+  windowKeystoreRefreshEvent?: string
 }
 
 export interface ConnectedWallet {
