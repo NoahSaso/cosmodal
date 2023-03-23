@@ -4,32 +4,37 @@
  */
 
 import { Bech32Address } from "@keplr-wallet/cosmos"
-import { AppCurrency, ChainInfo } from "@keplr-wallet/types"
+import {
+  AppCurrency,
+  ChainInfo,
+  FeeCurrency,
+  WithGasPriceStep,
+} from "@keplr-wallet/types"
 
 import { ChainInfoID, ChainInfoOverrides } from "../types"
 
 /** All currency attributes (stake and fee) are defined once in the `currencies` list.
  *  Maintains the option to skip this conversion and keep the verbose `ChainInfo` type.
  */
-export type SimplifiedChainInfo = Omit<
-  ChainInfo,
-  "stakeCurrency" | "feeCurrencies"
-> & {
-  currencies: Array<
-    AppCurrency & {
-      isStakeCurrency?: boolean
-      isFeeCurrency?: boolean
-    }
-  >
-}
+export type SimplifiedChainInfo = WithGasPriceStep<
+  Omit<ChainInfo, "stakeCurrency" | "feeCurrencies" | "currencies"> & {
+    currencies: Array<
+      AppCurrency & {
+        isStakeCurrency?: boolean
+        isFeeCurrency?: boolean
+      }
+    >
+  }
+>
 
 /** Convert a less redundant chain info schema into one that is accepted by Keplr's suggestChain: `ChainInfo`. */
 export function createKeplrChainInfo({
   currencies: _currencies,
+  gasPriceStep,
   ...chainInfo
 }: SimplifiedChainInfo): ChainInfo {
   const currencies: AppCurrency[] = []
-  const feeCurrencies: AppCurrency[] = []
+  const feeCurrencies: FeeCurrency[] = []
   let stakeCurrency: AppCurrency | undefined
 
   for (const _currency of _currencies) {
@@ -44,7 +49,10 @@ export function createKeplrChainInfo({
     currencies.push(currency)
 
     if (currency.isFeeCurrency) {
-      feeCurrencies.push(currency)
+      feeCurrencies.push({
+        ...currency,
+        gasPriceStep,
+      })
     }
 
     if (currency.isStakeCurrency && stakeCurrency === undefined) {
@@ -163,7 +171,6 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
         coinGeckoId: "terrausd",
         coinImageUrl: "/tokens/ustc.png",
         isFeeCurrency: true,
-        pegMechanism: "algorithmic",
       },
       {
         coinDenom: "KRTC",
@@ -171,7 +178,6 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
         coinDecimals: 6,
         coinGeckoId: "terra-krw",
         coinImageUrl: "/tokens/krtc.png",
-        pegMechanism: "algorithmic",
       },
     ],
     gasPriceStep: {
@@ -983,7 +989,6 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
         coinDecimals: 6,
         coinGeckoId: "usd-coin",
         coinImageUrl: "/tokens/gusdc.png",
-        pegMechanism: "collateralized",
       },
       {
         coinDenom: "DAI.grv",
@@ -991,7 +996,6 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
         coinDecimals: 18,
         coinGeckoId: "dai",
         coinImageUrl: "/tokens/gdai.png",
-        pegMechanism: "collateralized",
       },
       {
         coinDenom: "USDT.grv",
@@ -999,7 +1003,6 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
         coinDecimals: 6,
         coinGeckoId: "tether",
         coinImageUrl: "/tokens/gusdt.png",
-        pegMechanism: "collateralized",
       },
     ],
     gasPriceStep: {

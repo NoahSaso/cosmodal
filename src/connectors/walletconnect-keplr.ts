@@ -14,6 +14,8 @@ import {
 } from "@keplr-wallet/provider"
 import {
   ChainInfo,
+  ChainInfoWithoutEndpoints,
+  ICNSAdr36Signatures,
   KeplrIntereactionOptions,
   KeplrMode,
   KeplrSignOptions,
@@ -59,6 +61,7 @@ export type KeplrGetKeyWalletConnectV1Response = {
   isNanoLedger: boolean
   name: string
   pubKey: string
+  isKeystone: boolean
 }
 
 export type KeplrKeystoreMayChangedEventParam = {
@@ -70,6 +73,7 @@ export type KeplrKeystoreMayChangedEventParam = {
     address: string
     bech32Address: string
     pubKey: string
+    isKeystone: boolean
   }[]
 }
 
@@ -117,6 +121,49 @@ export class KeplrWalletConnectV1 implements IKeplrWalletConnectV1 {
     connector.on("call_request", this.onCallReqeust)
   }
 
+  async disable(_chainIds: string[]): Promise<void> {
+    throw new Error("Method not implemented.")
+  }
+
+  async signICNSAdr36(
+    _chainId: string,
+    _contractAddress: string,
+    _owner: string,
+    _username: string,
+    _addressChainIds: string[]
+  ): Promise<ICNSAdr36Signatures> {
+    throw new Error("Method not implemented.")
+  }
+
+  async experimentalSignEIP712CosmosTx_v0(
+    _chainId: string,
+    _signer: string,
+    _eip712: {
+      types: Record<string, { name: string; type: string }[] | undefined>
+      domain: Record<string, any>
+      primaryType: string
+    },
+    _signDoc: StdSignDoc,
+    _signOptions?: KeplrSignOptions | undefined
+  ): Promise<AminoSignResponse> {
+    throw new Error("Method not implemented.")
+  }
+
+  async getChainInfosWithoutEndpoints(): Promise<ChainInfoWithoutEndpoints[]> {
+    return this.chainInfos
+  }
+
+  async changeKeyRingName(_opts: {
+    defaultName: string
+    editable?: boolean | undefined
+  }): Promise<string> {
+    throw new Error("Method not implemented.")
+  }
+
+  signEthereum(): Promise<Uint8Array> {
+    throw new Error("Method not implemented.")
+  }
+
   readonly version: string = "0.9.0"
   readonly mode: KeplrMode = "walletconnect"
 
@@ -162,6 +209,7 @@ export class KeplrWalletConnectV1 implements IKeplrWalletConnectV1 {
           isNanoLedger: param.isNanoLedger,
           name: param.name,
           pubKey: mayChangedKey.pubKey,
+          isKeystone: mayChangedKey.isKeystone,
         }
       }
 
@@ -179,7 +227,8 @@ export class KeplrWalletConnectV1 implements IKeplrWalletConnectV1 {
               mayChangedKey.isNanoLedger !== savedKey.isNanoLedger ||
               mayChangedKey.address !== savedKey.address ||
               mayChangedKey.bech32Address !== savedKey.bech32Address ||
-              mayChangedKey.pubKey !== savedKey.pubKey
+              mayChangedKey.pubKey !== savedKey.pubKey ||
+              mayChangedKey.isKeystone !== savedKey.isKeystone
             ) {
               hasChanged = true
 
@@ -330,6 +379,7 @@ export class KeplrWalletConnectV1 implements IKeplrWalletConnectV1 {
         isNanoLedger: lastSeenKey.isNanoLedger,
         name: lastSeenKey.name,
         pubKey: Buffer.from(lastSeenKey.pubKey, "hex"),
+        isKeystone: lastSeenKey.isKeystone,
       }
     }
 
@@ -351,6 +401,7 @@ export class KeplrWalletConnectV1 implements IKeplrWalletConnectV1 {
       isNanoLedger: response.isNanoLedger,
       name: response.name,
       pubKey: Buffer.from(response.pubKey, "hex"),
+      isKeystone: response.isKeystone,
     }
   }
 

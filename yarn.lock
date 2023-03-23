@@ -1886,28 +1886,29 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@keplr-wallet/background@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/background/-/background-0.11.44.tgz"
-  integrity sha512-OvGCY/tXY2wA+HfxBFAhZLE+Mm/ni82NHOoIIfN84H9d1VBOEb2K5iZy2JVKKCFdwRVPWxxuRCLJf/v9knhLtQ==
+"@keplr-wallet/background@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/background/-/background-0.11.49.tgz"
+  integrity sha512-PsAjf1hg5c9ophPoSSGP9urrZNGOPxQF+PYRfNxmx6yBcp6G1GMeJHFVCkq7BThQGZ94+nhpH2GExnQlpeoB7A==
   dependencies:
     "@ethereumjs/common" "^2.6.5"
     "@ethereumjs/tx" "^3.5.2"
+    "@ethersproject/address" "^5.6.0"
     "@ethersproject/bignumber" "^5.7.0"
     "@ethersproject/bytes" "^5.7.0"
     "@ethersproject/hash" "^5.7.0"
     "@ethersproject/transactions" "^5.7.0"
     "@ethersproject/wallet" "^5.7.0"
-    "@keplr-wallet/chain-validator" "0.11.44"
-    "@keplr-wallet/common" "0.11.44"
-    "@keplr-wallet/cosmos" "0.11.44"
-    "@keplr-wallet/crypto" "0.11.44"
-    "@keplr-wallet/ledger-cosmos" "0.11.44"
-    "@keplr-wallet/popup" "0.11.44"
-    "@keplr-wallet/proto-types" "0.11.44"
-    "@keplr-wallet/router" "0.11.44"
-    "@keplr-wallet/types" "0.11.44"
-    "@keplr-wallet/unit" "0.11.44"
+    "@keplr-wallet/chain-validator" "0.11.49"
+    "@keplr-wallet/common" "0.11.49"
+    "@keplr-wallet/cosmos" "0.11.49"
+    "@keplr-wallet/crypto" "0.11.49"
+    "@keplr-wallet/ledger-cosmos" "0.11.49"
+    "@keplr-wallet/popup" "0.11.49"
+    "@keplr-wallet/proto-types" "0.11.49"
+    "@keplr-wallet/router" "0.11.49"
+    "@keplr-wallet/types" "0.11.49"
+    "@keplr-wallet/unit" "0.11.49"
     "@keystonehq/base-eth-keyring" "^0.6.4"
     "@keystonehq/bc-ur-registry" "^0.5.1"
     "@keystonehq/bc-ur-registry-cosmos" "^0.1.1"
@@ -1931,47 +1932,47 @@
     secretjs "0.17.7"
     utility-types "^3.10.0"
 
-"@keplr-wallet/chain-validator@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/chain-validator/-/chain-validator-0.11.44.tgz"
-  integrity sha512-2zmDWWrL31XPpr7aCa14ge5A68xwdyiVpuC0PYAzdoqKaVhWonCFHgkQsVEAxb/SRH6fvi8BnEBSa5zXQZ9oMw==
+"@keplr-wallet/chain-validator@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/chain-validator/-/chain-validator-0.11.49.tgz"
+  integrity sha512-7T5X8W8qmc82VPv+zIS9Kn3ABvyDta31b05B97QlCz1Cyy0DObkckfpZWumzzkna9RC3FEs6avNfBOoymi884A==
   dependencies:
-    "@keplr-wallet/cosmos" "0.11.44"
-    "@keplr-wallet/types" "0.11.44"
+    "@keplr-wallet/cosmos" "0.11.49"
+    "@keplr-wallet/types" "0.11.49"
     axios "^0.27.2"
     joi "^17.5.0"
     utility-types "^3.10.0"
 
-"@keplr-wallet/common@^0.11.44", "@keplr-wallet/common@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/common/-/common-0.11.44.tgz"
-  integrity sha512-GBaan7SHLwlJxL8qDzpYaywPlAMZA8XoY4igNbiXeCDIKjh+up8qsYofVlxv1HxRnLSuKbefkDekdMfU0PnQ+g==
+"@keplr-wallet/common@^0.11.49", "@keplr-wallet/common@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/common/-/common-0.11.49.tgz"
+  integrity sha512-aNEn8CIA87F8LVZpSH3VNqkbk1Ka+F0BEquyJbNdN0ZAFpLtRhvnZfyWAEIPpR8fqVL7j2rKrXClysL6vg0tHQ==
   dependencies:
-    "@keplr-wallet/crypto" "0.11.44"
+    "@keplr-wallet/crypto" "0.11.49"
     buffer "^6.0.3"
     delay "^4.4.0"
 
-"@keplr-wallet/cosmos@^0.11.44", "@keplr-wallet/cosmos@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/cosmos/-/cosmos-0.11.44.tgz"
-  integrity sha512-k9nD+eIpupuwu4hpocFEgGDM3aZKfAl6biidpRquSYH+2mL+6on9UDs00Us8B1nZA81p4NTe2xju5ZKC2+/zDw==
+"@keplr-wallet/cosmos@^0.11.49", "@keplr-wallet/cosmos@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/cosmos/-/cosmos-0.11.49.tgz"
+  integrity sha512-oQR4EfK3sjWr2Qf/TB7IxbGi3G4gWMFdhSv5iZ5mFC/a1daO06VzYpBBHnmqgd9Oks7pkjU9T4v7UvYmrONWFw==
   dependencies:
     "@ethersproject/address" "^5.6.0"
-    "@keplr-wallet/common" "0.11.44"
-    "@keplr-wallet/crypto" "0.11.44"
-    "@keplr-wallet/proto-types" "0.11.44"
-    "@keplr-wallet/types" "0.11.44"
-    "@keplr-wallet/unit" "0.11.44"
+    "@keplr-wallet/common" "0.11.49"
+    "@keplr-wallet/crypto" "0.11.49"
+    "@keplr-wallet/proto-types" "0.11.49"
+    "@keplr-wallet/types" "0.11.49"
+    "@keplr-wallet/unit" "0.11.49"
     axios "^0.27.2"
     bech32 "^1.1.4"
     buffer "^6.0.3"
     long "^4.0.0"
     protobufjs "^6.11.2"
 
-"@keplr-wallet/crypto@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/crypto/-/crypto-0.11.44.tgz"
-  integrity sha512-RNI59Tex/dnuBLC2TdhjkcgYeOqJYoxC3YZQMiM13u7G7OT48h11hJG6eXik/D7AlXxY+Fj/DhDZ75ywS/DOKA==
+"@keplr-wallet/crypto@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/crypto/-/crypto-0.11.49.tgz"
+  integrity sha512-QWlHtz/s32bFyw+k8bwtx4gUhYbCM/77IbbxQDIRvMyO1o8H1OPHgroH8Ob6vJTuMlRU8RWQ15DX9lODI+6HUg==
   dependencies:
     "@ethersproject/keccak256" "^5.5.0"
     bip32 "^2.0.6"
@@ -1982,55 +1983,55 @@
     elliptic "^6.5.3"
     sha.js "^2.4.11"
 
-"@keplr-wallet/ledger-cosmos@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/ledger-cosmos/-/ledger-cosmos-0.11.44.tgz"
-  integrity sha512-7EwnMx0OPKgpjVa93Dcp4eOD0PjGkRtqVvIR2Y7YQv3UUBLHuYa2goUPQLxNcw/U18HDvoY6K9R69jKXx0HZzg==
+"@keplr-wallet/ledger-cosmos@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/ledger-cosmos/-/ledger-cosmos-0.11.49.tgz"
+  integrity sha512-EOQqfj1ouM1zukN0p0Om2qo8Dh15nKJ+H12UFC10RZThv/QH/SVXog8FqoyvqHCItDQ/3P/6GoE+R46H8zUmgg==
   dependencies:
     buffer "^6.0.3"
 
-"@keplr-wallet/popup@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/popup/-/popup-0.11.44.tgz"
-  integrity sha512-rMSLmLDNrjpGOGrqAl5TGa9sdwOygVT+vXDcUpH7G3UZZjYoIL8WeecvkiPq7Qm8EeZOOSNCBUSafb8PBHdqkA==
+"@keplr-wallet/popup@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/popup/-/popup-0.11.49.tgz"
+  integrity sha512-bpVB7qEz0DZU93XivKJNau/tMh+eVQlGLy3dg+miXgyiFG88Muq/p7dfiirHpKv2/sIRZx7YMUK+qh1WBa3zaQ==
 
-"@keplr-wallet/proto-types@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/proto-types/-/proto-types-0.11.44.tgz"
-  integrity sha512-qwq+VJ0nwU1OCyM70jqebWHvl6XlHB6kXRlBeNnL+FPdyYGzQFgsJeNK9fveY2wFE/gqcPc4oQjHuU0fifvipQ==
+"@keplr-wallet/proto-types@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/proto-types/-/proto-types-0.11.49.tgz"
+  integrity sha512-m35D+QUIk8q69dfhrhfORBWeK0vQi/TiLFjZpkDNe56TnLPS9WhsZgFhzMV0C2emiGWGA0Zf4H5M53wzBXQV+w==
   dependencies:
     long "^4.0.0"
     protobufjs "^6.11.2"
 
-"@keplr-wallet/provider@^0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/provider/-/provider-0.11.44.tgz"
-  integrity sha512-GZx4kIk5OpFzZaUf9t75tDlSFsCa7bcKr3YyfGPfKD/0ynWDHU+DqzYt6yEfQk5iKgLgAlvsqJKW3DEnMcvgYA==
+"@keplr-wallet/provider@^0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/provider/-/provider-0.11.49.tgz"
+  integrity sha512-HeAVIA77H0ZabFb8phqAYKpP5bl1iB6QoCxdPuqDb87fFP9hQK/WXcrR5vDx0Qel5Zcgduhm3EmaEI4vN3VGNg==
   dependencies:
-    "@keplr-wallet/router" "0.11.44"
-    "@keplr-wallet/types" "0.11.44"
+    "@keplr-wallet/router" "0.11.49"
+    "@keplr-wallet/types" "0.11.49"
     buffer "^6.0.3"
     deepmerge "^4.2.2"
     long "^4.0.0"
 
-"@keplr-wallet/router@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/router/-/router-0.11.44.tgz"
-  integrity sha512-fJaq2rGeLARA8nBjpm12k4KYX6JJedQONRXgkyg4QxiaOlRW+eMXWWIwdBXFZjjUrHd2q+Bb0nNdEmDmMhA/MQ==
+"@keplr-wallet/router@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/router/-/router-0.11.49.tgz"
+  integrity sha512-MrdMVJPMXaOJ+PRKRSW7zjIvwxFuTFWgYUV4Urj4ZJGBwgZtJA8tVP3dZk+F6mR1Jw8zbAvzBscI3UsLIgtswQ==
 
-"@keplr-wallet/stores@^0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/stores/-/stores-0.11.44.tgz"
-  integrity sha512-vLa+dj8kBgR4Kwo+cT/DCozk+BWZOa1U3E5OGZaffqT2bG+0N1LD9lLp6uDXcl8znxPSZ3tRZ1rD9uorgAO3JQ==
+"@keplr-wallet/stores@^0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/stores/-/stores-0.11.49.tgz"
+  integrity sha512-UDESpVTxntYDpPLRpSqC7duW8RCoQJ9mLI3hl98UlwEA2djPFjoGZF5+iqemMtqK5EWb6DWqnNj4ZC8dc8AFnw==
   dependencies:
-    "@keplr-wallet/background" "0.11.44"
-    "@keplr-wallet/common" "0.11.44"
-    "@keplr-wallet/cosmos" "0.11.44"
-    "@keplr-wallet/crypto" "0.11.44"
-    "@keplr-wallet/proto-types" "0.11.44"
-    "@keplr-wallet/router" "0.11.44"
-    "@keplr-wallet/types" "0.11.44"
-    "@keplr-wallet/unit" "0.11.44"
+    "@keplr-wallet/background" "0.11.49"
+    "@keplr-wallet/common" "0.11.49"
+    "@keplr-wallet/cosmos" "0.11.49"
+    "@keplr-wallet/crypto" "0.11.49"
+    "@keplr-wallet/proto-types" "0.11.49"
+    "@keplr-wallet/router" "0.11.49"
+    "@keplr-wallet/types" "0.11.49"
+    "@keplr-wallet/unit" "0.11.49"
     axios "^0.27.2"
     buffer "^6.0.3"
     deepmerge "^4.2.2"
@@ -2040,20 +2041,20 @@
     p-queue "^6.6.2"
     utility-types "^3.10.0"
 
-"@keplr-wallet/types@^0.11.44", "@keplr-wallet/types@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/types/-/types-0.11.44.tgz"
-  integrity sha512-QR7oh3r2yFP7vBHVh3MnTt+E+sFV4tATD8b6rnO7ym6B3Novm69TQgo4EM9uqh0LUSnWHPQFN9unyTKtnNvApw==
+"@keplr-wallet/types@^0.11.49", "@keplr-wallet/types@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/types/-/types-0.11.49.tgz"
+  integrity sha512-+TS3XkNMfE/s8iN008eOeWzfWGxzY/pKoX+/I44rAJW382NGUzpIW9GLlmraardTsEp40joon1KVVPV/ApNpaw==
   dependencies:
     axios "^0.27.2"
     long "^4.0.0"
 
-"@keplr-wallet/unit@0.11.44":
-  version "0.11.44"
-  resolved "https://registry.npmjs.org/@keplr-wallet/unit/-/unit-0.11.44.tgz"
-  integrity sha512-gRUDzg/qXaEhQ+fp45RGOMGLrH+5gNlFvSH/9/vFhqlaKKHAhq4Aj8pEZfeZBocpqbrgNca+nv1XnvPgWtzNHw==
+"@keplr-wallet/unit@0.11.49":
+  version "0.11.49"
+  resolved "https://registry.npmjs.org/@keplr-wallet/unit/-/unit-0.11.49.tgz"
+  integrity sha512-PDxYZfBEIk2HVAjQKRCiLgatCVrAwY7FxXHhnaiyL5tTpD4VoiVHF7VC49ZL2YzdDHlosd/E9ltEkOXYYbK0EQ==
   dependencies:
-    "@keplr-wallet/types" "0.11.44"
+    "@keplr-wallet/types" "0.11.49"
     big-integer "^1.6.48"
     utility-types "^3.10.0"
 
@@ -2136,10 +2137,10 @@
     react-qr-reader "^2.2.1"
     rxjs "^6.6.3"
 
-"@ledgerhq/cryptoassets@^9.0.0":
-  version "9.0.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/cryptoassets/-/cryptoassets-9.0.0.tgz"
-  integrity sha512-/C8NtrjXPR1O5YmhK2+hq1M8e25Qum2+GGv8G/xOpGKp15Vpbdqgnn8KlnDQJl7kB1eBx/ZrNwXcEJBavRyTPw==
+"@ledgerhq/cryptoassets@^9.1.0":
+  version "9.1.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/cryptoassets/-/cryptoassets-9.1.0.tgz"
+  integrity sha512-tzcZbjJDzZBUKct/4dLGy+HHMwRHw3/cnYLeDMj4+KIbE2+MXK3czkqsZbZVOPIxnJgkwHONICqQ4VUpaIQhXQ==
   dependencies:
     invariant "2"
 
@@ -2159,13 +2160,13 @@
   integrity sha512-djiMSgB/7hnK3aLR/c5ZMMivxjcI7o2+y3VKcsZZpydPoVf9+FXqeJPRfOwmJ0JxbQ//LinUfWpIfHew8LkaVw==
 
 "@ledgerhq/hw-app-eth@^6.29.3":
-  version "6.32.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-eth/-/hw-app-eth-6.32.0.tgz"
-  integrity sha512-3s3rKyGKSkfk2unHWZUoZg99qUfRykFwbradVZGV7BcqnC0xoYuQsR15PAF7F6vvWXnnch1KzkrOwjjyiLuung==
+  version "6.32.1"
+  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-eth/-/hw-app-eth-6.32.1.tgz"
+  integrity sha512-Bw2VIN8IxQfKOFSIFSkETi3aaJPOxZ9jwGyibmhFdnfcMFuWVc9DErk7X1zr35kRl8FABais1sZUof7fCXppew==
   dependencies:
     "@ethersproject/abi" "^5.5.0"
     "@ethersproject/rlp" "^5.5.0"
-    "@ledgerhq/cryptoassets" "^9.0.0"
+    "@ledgerhq/cryptoassets" "^9.1.0"
     "@ledgerhq/errors" "^6.12.3"
     "@ledgerhq/hw-transport" "^6.28.1"
     "@ledgerhq/hw-transport-mocker" "^6.27.12"
@@ -5675,9 +5676,9 @@ jest@^28.0.0, jest@^28.1.1:
     jest-cli "^28.1.2"
 
 joi@^17.5.0:
-  version "17.8.3"
-  resolved "https://registry.npmjs.org/joi/-/joi-17.8.3.tgz"
-  integrity sha512-q5Fn6Tj/jR8PfrLrx4fpGH4v9qM6o+vDUfD4/3vxxyg34OmKcNqYZ1qn2mpLza96S8tL0p0rIw2gOZX+/cTg9w==
+  version "17.9.1"
+  resolved "https://registry.npmjs.org/joi/-/joi-17.9.1.tgz"
+  integrity sha512-FariIi9j6QODKATGBrEX7HZcja8Bsh3rfdGYy/Sb65sGlZWK/QWesU1ghk7aJWDj95knjXlQfSmzFSPPkLVsfw==
   dependencies:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
