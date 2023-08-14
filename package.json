@@ -29,7 +29,6 @@
     "lint": "eslint .",
     "format": "eslint . --fix"
   },
-  "private": true,
   "dependencies": {
     "@toruslabs/eccrypto": "^2.1.1",
     "@walletconnect/client": "^1.7.8",
