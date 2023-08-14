@@ -1406,6 +1406,46 @@ const SimpleChainInfoList: Record<ChainInfoID, SimplifiedChainInfo> = {
     },
     features: ["stargate", "ibc-transfer", "no-legacy-stdTx", "ibc-go"],
   },
+  [ChainInfoID.Earendel1]: {
+    rpc: "http://66.42.74.12:26657",
+    rest: "http://66.42.74.12:1317",
+    chainId: ChainInfoID.Earendel1,
+    chainName: "Earendel (Qwoyn Testnet)",
+    bip44: { coinType: 118 },
+    bech32Config: Bech32Address.defaultBech32Config("qwoyn"),
+    currencies: [
+      {
+        coinDenom: "QWOYN",
+        coinMinimalDenom: "uqwoyn",
+        coinDecimals: 6,
+        coinImageUrl: "/tokens/qwoyn.png",
+        coinGeckoId: "earendel",
+        isStakeCurrency: true,
+        isFeeCurrency: true,
+      },
+    ],
+    features: ["stargate", "ibc-transfer", "no-legacy-stdTx"],
+  },
+  [ChainInfoID.Qwoyn1]: {
+    rpc: "https://rpc.qwoyn.studio",
+    rest: "https://api.qwoyn.studio",
+    chainId: ChainInfoID.Qwoyn1,
+    chainName: "Qwoyn Network",
+    bip44: { coinType: 118 },
+    bech32Config: Bech32Address.defaultBech32Config("qwoyn"),
+    currencies: [
+      {
+        coinDenom: "QWOYN",
+        coinMinimalDenom: "uqwoyn",
+        coinDecimals: 6,
+        coinImageUrl: "/tokens/qwoyn.png",
+        coinGeckoId: "qwoyn",
+        isStakeCurrency: true,
+        isFeeCurrency: true,
+      },
+    ],
+    features: ["stargate", "ibc-transfer", "no-legacy-stdTx"],
+  },
 }
 export const ChainInfoMap = Object.entries(SimpleChainInfoList).reduce(
   (curr, [id, simplifiedChainInfo]) => ({
